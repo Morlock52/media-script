@@ -91,7 +91,7 @@ Create DNS A records pointing to your server's IP:
 ### 4. Start Services
 
 ```bash
-# Create necessary directories
+# Run interactive setup to configure directories and permissions
 ./setup.sh
 
 # Start all services

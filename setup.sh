@@ -5,28 +5,81 @@
 
 set -e
 
-echo "🚀 Setting up Media Stack directories and permissions..."
+# Colors and symbols for interactive output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+RESET='\033[0m'
+CHECK='✅'
+CROSS='❌'
+ARROW='➜'
 
-# Check if running as root
-if [[ $EUID -eq 0 ]]; then
-   echo "❌ This script should not be run as root. Please run as your regular user."
+echo
+echo -e "${CYAN}========================================${RESET}"
+echo -e "${CYAN}${BOLD}      🌐 MEDIA STACK INSTALLER 🌐      ${RESET}"
+echo -e "${CYAN}========================================${RESET}"
+echo
+
+PS3="${ARROW} Select your operating system: "
+options=(Linux macOS Windows)
+select OS in "${options[@]}"; do
+    if [[ " ${options[*]} " == *" $OS "* ]]; then
+        break
+    else
+        echo -e "${RED}Invalid selection.${RESET}"
+    fi
+done
+echo -e "${GREEN}${CHECK} Operating system: $OS${RESET}"
+
+# On Linux, ensure not running as root
+if [[ "$OS" == "Linux" ]] && [[ $EUID -eq 0 ]]; then
+   echo -e "${RED}Please run this script as a regular user, not root.${RESET}"
    exit 1
 fi
 
-# Get user ID and group ID
+# Get user and group IDs
 USER_ID=$(id -u)
 GROUP_ID=$(id -g)
 
-echo "📋 User ID: $USER_ID, Group ID: $GROUP_ID"
+# Prompt for directories
+DEFAULT_MEDIA_DIR="/media"
+if [[ "$OS" != "Linux" ]]; then
+    DEFAULT_MEDIA_DIR="$HOME/media"
+fi
+read -rp "${ARROW} Media directory [${DEFAULT_MEDIA_DIR}]: " MEDIA_DIR
+MEDIA_DIR="${MEDIA_DIR:-$DEFAULT_MEDIA_DIR}"
+
+DEFAULT_DOWNLOADS_DIR="$HOME/downloads"
+read -rp "${ARROW} Downloads directory [${DEFAULT_DOWNLOADS_DIR}]: " DOWNLOADS_DIR
+DOWNLOADS_DIR="${DOWNLOADS_DIR:-$DEFAULT_DOWNLOADS_DIR}"
+
+echo
+echo -e "${YELLOW}Media directory: ${RESET}$MEDIA_DIR"
+echo -e "${YELLOW}Downloads directory: ${RESET}$DOWNLOADS_DIR"
+read -rp "${ARROW} Proceed with these settings? [Y/n]: " CONFIRM
+CONFIRM="${CONFIRM:-Y}"
+if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
+    echo -e "${RED}Setup cancelled.${RESET}"
+    exit 1
+fi
+
+echo -e "\n🚀 Setting up Media Stack directories and permissions..."
 
 # Create config directories
 echo "📁 Creating configuration directories..."
 mkdir -p config/{jellyfin,sonarr,radarr,lidarr,readarr,prowlarr,qbittorrent,overseerr,nzbget,tautulli,bazarr,caddy/{data,config}}
 
-# Create media directories (adjust paths as needed)
+# Create media directories
 echo "📁 Creating media directories..."
-sudo mkdir -p /media/{movies,tv,music,books}
-sudo mkdir -p /downloads/{complete,incomplete}
+if [[ "$OS" == "Linux" ]]; then
+    sudo mkdir -p "$MEDIA_DIR"/{movies,tv,music,books}
+    sudo mkdir -p "$DOWNLOADS_DIR"/{complete,incomplete}
+else
+    mkdir -p "$MEDIA_DIR"/{movies,tv,music,books}
+    mkdir -p "$DOWNLOADS_DIR"/{complete,incomplete}
+fi
 
 # Set permissions for config directories
 echo "🔐 Setting permissions for config directories..."
@@ -35,8 +88,12 @@ chown -R $USER_ID:$GROUP_ID config/
 
 # Set permissions for media directories
 echo "🔐 Setting permissions for media directories..."
-sudo chown -R $USER_ID:$GROUP_ID /media /downloads
-sudo chmod -R 755 /media /downloads
+if [[ "$OS" == "Linux" ]]; then
+    sudo chown -R $USER_ID:$GROUP_ID "$MEDIA_DIR" "$DOWNLOADS_DIR"
+    sudo chmod -R 755 "$MEDIA_DIR" "$DOWNLOADS_DIR"
+else
+    chmod -R 755 "$MEDIA_DIR" "$DOWNLOADS_DIR"
+fi
 
 # Create .env file if it doesn't exist
 if [ ! -f .env ]; then
