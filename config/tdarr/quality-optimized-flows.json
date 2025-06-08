@@ -1,0 +1,156 @@
+{
+  "flows": [
+    {
+      "name": "Quality-First Size Optimization",
+      "description": "Reduces file size by 40-60% while maintaining high quality using modern codecs",
+      "enabled": true,
+      "priority": 1,
+      "conditions": [
+        {
+          "type": "file_size",
+          "operator": ">",
+          "value": 500,
+          "unit": "MB"
+        },
+        {
+          "type": "codec",
+          "operator": "in",
+          "value": ["h264", "mpeg4", "xvid", "divx", "mpeg2"]
+        }
+      ],
+      "actions": [
+        {
+          "plugin": "Tdarr_Plugin_00td_action_transcode_hevc_nvenc",
+          "settings": {
+            "crf": 20,
+            "preset": "slow",
+            "profile": "main10",
+            "target_codec": "hevc",
+            "audio_codec": "copy",
+            "subtitle_action": "copy"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4K Content Optimization",
+      "description": "Optimizes 4K content for streaming while maintaining quality",
+      "enabled": true,
+      "priority": 1,
+      "conditions": [
+        {
+          "type": "resolution",
+          "operator": ">=",
+          "value": "3840x2160"
+        },
+        {
+          "type": "bitrate",
+          "operator": ">",
+          "value": 25000,
+          "unit": "kbps"
+        }
+      ],
+      "actions": [
+        {
+          "plugin": "Tdarr_Plugin_00td_action_transcode_hevc_nvenc_4k",
+          "settings": {
+            "crf": 18,
+            "preset": "slow",
+            "profile": "main10",
+            "max_bitrate": "15000k",
+            "audio_codec": "copy",
+            "hdr_passthrough": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "Legacy Format Modernization",
+      "description": "Converts legacy formats to modern containers and codecs",
+      "enabled": true,
+      "priority": 2,
+      "conditions": [
+        {
+          "type": "container",
+          "operator": "in",
+          "value": ["avi", "wmv", "flv", "asf", "rm"]
+        }
+      ],
+      "actions": [
+        {
+          "plugin": "Tdarr_Plugin_00td_action_modernize_container",
+          "settings": {
+            "target_container": "mp4",
+            "video_codec": "h264",
+            "audio_codec": "aac",
+            "crf": 23
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audio Optimization",
+      "description": "Optimizes audio tracks for size while maintaining quality",
+      "enabled": true,
+      "priority": 3,
+      "conditions": [
+        {
+          "type": "audio_codec",
+          "operator": "in",
+          "value": ["pcm", "dts", "truehd", "wav"]
+        },
+        {
+          "type": "audio_bitrate",
+          "operator": ">",
+          "value": 1000,
+          "unit": "kbps"
+        }
+      ],
+      "actions": [
+        {
+          "plugin": "Tdarr_Plugin_00td_action_optimize_audio",
+          "settings": {
+            "stereo_codec": "aac",
+            "stereo_bitrate": "128k",
+            "surround_codec": "ac3",
+            "surround_bitrate": "640k",
+            "keep_original": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "Subtitle Optimization",
+      "description": "Extracts and optimizes subtitle tracks",
+      "enabled": true,
+      "priority": 4,
+      "conditions": [
+        {
+          "type": "subtitle_type",
+          "operator": "in",
+          "value": ["vobsub", "pgs", "dvdsub"]
+        }
+      ],
+      "actions": [
+        {
+          "plugin": "Tdarr_Plugin_00td_action_extract_subtitles",
+          "settings": {
+            "extract_to_srt": true,
+            "keep_image_subs": false,
+            "ocr_language": "eng"
+          }
+        }
+      ]
+    }
+  ],
+  "global_settings": {
+    "temp_directory": "/temp",
+    "output_directory": "/media",
+    "preserve_original": false,
+    "create_backup": false,
+    "skip_if_smaller": true,
+    "max_concurrent_jobs": 2,
+    "health_check_after_transcode": true,
+    "target_size_reduction": 40
+  }
+}

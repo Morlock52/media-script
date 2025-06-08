@@ -1,0 +1,210 @@
+{
+  "libraries": [
+    {
+      "name": "Movies - Quality Optimization",
+      "path": "/media/movies",
+      "priority": 1,
+      "enabled": true,
+      "settings": {
+        "scan_interval": 3600,
+        "file_filters": {
+          "include": ["*.mp4", "*.mkv", "*.avi", "*.mov", "*.wmv", "*.flv"],
+          "exclude": ["*sample*", "*trailer*", "*.tmp"]
+        },
+        "transcode_settings": {
+          "target_codecs": ["hevc", "h264"],
+          "target_containers": ["mp4", "mkv"],
+          "quality_mode": "crf",
+          "hardware_acceleration": true,
+          "preserve_metadata": true
+        },
+        "size_optimization": {
+          "enabled": true,
+          "target_reduction": 50,
+          "min_file_size": "500MB",
+          "skip_if_smaller": true
+        },
+        "quality_control": {
+          "min_ssim": 0.95,
+          "max_quality_loss": 5,
+          "validate_output": true
+        }
+      }
+    },
+    {
+      "name": "TV Shows - Balanced Optimization",
+      "path": "/media/tv",
+      "priority": 2,
+      "enabled": true,
+      "settings": {
+        "scan_interval": 1800,
+        "file_filters": {
+          "include": ["*.mp4", "*.mkv", "*.avi", "*.mov"],
+          "exclude": ["*sample*", "*.tmp"]
+        },
+        "transcode_settings": {
+          "target_codecs": ["hevc", "h264"],
+          "target_containers": ["mp4"],
+          "quality_mode": "crf",
+          "crf_value": 23,
+          "hardware_acceleration": true
+        },
+        "size_optimization": {
+          "enabled": true,
+          "target_reduction": 45,
+          "min_file_size": "200MB"
+        }
+      }
+    },
+    {
+      "name": "4K Content - Premium Quality",
+      "path": "/media/4k",
+      "priority": 1,
+      "enabled": true,
+      "settings": {
+        "scan_interval": 7200,
+        "file_filters": {
+          "include": ["*.mp4", "*.mkv", "*.ts"],
+          "min_resolution": "3840x2160"
+        },
+        "transcode_settings": {
+          "target_codecs": ["hevc"],
+          "target_containers": ["mp4", "mkv"],
+          "quality_mode": "crf",
+          "crf_value": 18,
+          "profile": "main10",
+          "preserve_hdr": true,
+          "hardware_acceleration": true
+        },
+        "size_optimization": {
+          "enabled": true,
+          "target_reduction": 35,
+          "min_file_size": "2GB"
+        }
+      }
+    },
+    {
+      "name": "Anime - Optimized Encoding",
+      "path": "/media/anime",
+      "priority": 2,
+      "enabled": true,
+      "settings": {
+        "scan_interval": 3600,
+        "file_filters": {
+          "include": ["*.mp4", "*.mkv", "*.avi"],
+          "exclude": ["*sample*"]
+        },
+        "transcode_settings": {
+          "target_codecs": ["hevc"],
+          "quality_mode": "crf",
+          "crf_value": 20,
+          "preset": "slow",
+          "tune": "animation"
+        },
+        "size_optimization": {
+          "enabled": true,
+          "target_reduction": 55
+        }
+      }
+    },
+    {
+      "name": "Music Videos",
+      "path": "/media/music",
+      "priority": 3,
+      "enabled": true,
+      "settings": {
+        "scan_interval": 7200,
+        "file_filters": {
+          "include": ["*.mp4", "*.mkv", "*.avi"],
+          "max_duration": 600
+        },
+        "transcode_settings": {
+          "target_codecs": ["h264"],
+          "quality_mode": "crf",
+          "crf_value": 25,
+          "audio_quality": "high"
+        },
+        "size_optimization": {
+          "enabled": true,
+          "target_reduction": 40
+        }
+      }
+    }
+  ],
+  "global_rules": {
+    "skip_conditions": [
+      {
+        "type": "file_age",
+        "value": 24,
+        "unit": "hours",
+        "description": "Skip files modified in last 24 hours"
+      },
+      {
+        "type": "current_codec",
+        "value": ["hevc", "av1"],
+        "description": "Skip files already using efficient codecs"
+      },
+      {
+        "type": "file_size",
+        "operator": "<",
+        "value": 100,
+        "unit": "MB",
+        "description": "Skip small files under 100MB"
+      }
+    ],
+    "priority_conditions": [
+      {
+        "type": "file_size",
+        "operator": ">",
+        "value": 5,
+        "unit": "GB",
+        "priority_boost": 2,
+        "description": "High priority for large files"
+      },
+      {
+        "type": "codec",
+        "value": ["mpeg2", "mpeg4", "xvid"],
+        "priority_boost": 1,
+        "description": "Medium priority for legacy codecs"
+      }
+    ]
+  },
+  "worker_allocation": {
+    "gpu_workers": {
+      "transcode": 1,
+      "health_check": 1
+    },
+    "cpu_workers": {
+      "transcode": 2,
+      "health_check": 1
+    },
+    "concurrent_jobs": 3,
+    "max_queue_size": 100
+  },
+  "quality_presets": {
+    "archive": {
+      "description": "Maximum quality for archival purposes",
+      "crf": 16,
+      "preset": "veryslow",
+      "target_reduction": 25
+    },
+    "premium": {
+      "description": "High quality for 4K and premium content",
+      "crf": 18,
+      "preset": "slow", 
+      "target_reduction": 35
+    },
+    "standard": {
+      "description": "Balanced quality and size",
+      "crf": 23,
+      "preset": "medium",
+      "target_reduction": 50
+    },
+    "efficient": {
+      "description": "Smaller files for storage efficiency",
+      "crf": 26,
+      "preset": "fast",
+      "target_reduction": 60
+    }
+  }
+}

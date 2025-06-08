@@ -1,0 +1,249 @@
+# Homarr Dashboard Configuration for Media Stack
+# This configuration provides a comprehensive layout for all media services
+
+settings:
+  title: "Media Stack Dashboard"
+  favicon: "/favicon.svg"
+  logo: "/logo.png"
+  searchEngine: "duckduckgo"
+  primaryColor: "#fa5252"
+  secondaryColor: "#fd7e14"
+  shade: 8
+  language: "en"
+  hideErrors: false
+  disableIntegrations: false
+  dockerIntegration: true
+
+layout:
+  - type: "category"
+    name: "Media Services"
+    items:
+      - type: "app"
+        name: "Jellyfin"
+        url: "https://jellyfin.${DOMAIN}"
+        icon: "jellyfin.svg"
+        ping: true
+        integration:
+          type: "jellyfin"
+          properties:
+            url: "http://jellyfin:8096"
+            apiKey: "${JELLYFIN_API_KEY}"
+            
+      - type: "app"
+        name: "Overseerr"
+        url: "https://overseerr.${DOMAIN}"
+        icon: "overseerr.svg"
+        ping: true
+        integration:
+          type: "overseerr"
+          properties:
+            url: "http://overseerr:5055"
+            apiKey: "${OVERSEERR_API_KEY}"
+            
+      - type: "app"
+        name: "Tautulli"
+        url: "https://tautulli.${DOMAIN}"
+        icon: "tautulli.svg"
+        ping: true
+        integration:
+          type: "tautulli"
+          properties:
+            url: "http://tautulli:8181"
+            apiKey: "${TAUTULLI_API_KEY}"
+
+  - type: "category"
+    name: "Content Management"
+    items:
+      - type: "app"
+        name: "Sonarr"
+        url: "https://sonarr.${DOMAIN}"
+        icon: "sonarr.svg"
+        ping: true
+        integration:
+          type: "sonarr"
+          properties:
+            url: "http://sonarr:8989"
+            apiKey: "${SONARR_API_KEY}"
+            
+      - type: "app"
+        name: "Radarr"
+        url: "https://radarr.${DOMAIN}"
+        icon: "radarr.svg"
+        ping: true
+        integration:
+          type: "radarr"
+          properties:
+            url: "http://radarr:7878"
+            apiKey: "${RADARR_API_KEY}"
+            
+      - type: "app"
+        name: "Lidarr"
+        url: "https://lidarr.${DOMAIN}"
+        icon: "lidarr.svg"
+        ping: true
+        integration:
+          type: "lidarr"
+          properties:
+            url: "http://lidarr:8686"
+            apiKey: "${LIDARR_API_KEY}"
+            
+      - type: "app"
+        name: "Readarr"
+        url: "https://readarr.${DOMAIN}"
+        icon: "readarr.svg"
+        ping: true
+        integration:
+          type: "readarr"
+          properties:
+            url: "http://readarr:8787"
+            apiKey: "${READARR_API_KEY}"
+            
+      - type: "app"
+        name: "Prowlarr"
+        url: "https://prowlarr.${DOMAIN}"
+        icon: "prowlarr.svg"
+        ping: true
+        integration:
+          type: "prowlarr"
+          properties:
+            url: "http://prowlarr:9696"
+            apiKey: "${PROWLARR_API_KEY}"
+            
+      - type: "app"
+        name: "Bazarr"
+        url: "https://bazarr.${DOMAIN}"
+        icon: "bazarr.svg"
+        ping: true
+        integration:
+          type: "bazarr"
+          properties:
+            url: "http://bazarr:6767"
+            apiKey: "${BAZARR_API_KEY}"
+
+  - type: "category"
+    name: "Downloads & Processing"
+    items:
+      - type: "app"
+        name: "qBittorrent"
+        url: "https://qbittorrent.${DOMAIN}"
+        icon: "qbittorrent.svg"
+        ping: true
+        integration:
+          type: "qbittorrent"
+          properties:
+            url: "http://qbittorrent:8080"
+            username: "${QBITTORRENT_USERNAME}"
+            password: "${QBITTORRENT_PASSWORD}"
+            
+      - type: "app"
+        name: "Tdarr"
+        url: "https://tdarr.${DOMAIN}"
+        icon: "tdarr.svg"
+        ping: true
+        integration:
+          type: "tdarr"
+          properties:
+            url: "http://tdarr:8266"
+            
+      - type: "app"
+        name: "HandBrake"
+        url: "https://handbrake.${DOMAIN}"
+        icon: "handbrake.svg"
+        ping: true
+        
+      - type: "app"
+        name: "MKVToolNix"
+        url: "https://mkvtoolnix.${DOMAIN}"
+        icon: "mkvtoolnix.svg"
+        ping: true
+
+  - type: "category"
+    name: "System Management"
+    items:
+      - type: "app"
+        name: "Uptime Status"
+        url: "https://status.${DOMAIN}"
+        icon: "uptimekuma.svg"
+        ping: true
+        
+      - type: "widget"
+        name: "Docker Containers"
+        type: "docker"
+        properties:
+          showAll: true
+          collapseSingleContainer: false
+          
+      - type: "widget"
+        name: "System Stats"
+        type: "system"
+        properties:
+          showCpu: true
+          showMemory: true
+          showStorage: true
+          showNetwork: true
+
+widgets:
+  - type: "calendar"
+    name: "Upcoming Releases"
+    integration:
+      type: "sonarr"
+      properties:
+        url: "http://sonarr:8989"
+        apiKey: "${SONARR_API_KEY}"
+        
+  - type: "media-requests"
+    name: "Recent Requests"
+    integration:
+      type: "overseerr"
+      properties:
+        url: "http://overseerr:5055"
+        apiKey: "${OVERSEERR_API_KEY}"
+        
+  - type: "downloads"
+    name: "Active Downloads"
+    integration:
+      type: "qbittorrent"
+      properties:
+        url: "http://qbittorrent:8080"
+        username: "${QBITTORRENT_USERNAME}"
+        password: "${QBITTORRENT_PASSWORD}"
+        
+  - type: "media-server"
+    name: "Library Statistics"
+    integration:
+      type: "jellyfin"
+      properties:
+        url: "http://jellyfin:8096"
+        apiKey: "${JELLYFIN_API_KEY}"
+
+appearance:
+  theme: "dark"
+  layout: "grid"
+  columns: 4
+  gap: 1
+  headerHeight: 60
+  appCardHeight: 100
+  widgetHeight: 200
+  searchBarPosition: "header"
+  showAppUrls: false
+  showAppDescriptions: true
+  showAppPing: true
+  customCSS: |
+    /* Custom styling for media stack */
+    .category-title {
+      background: linear-gradient(45deg, #fa5252, #fd7e14);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: bold;
+    }
+    
+    .app-card:hover {
+      transform: translateY(-2px);
+      transition: transform 0.2s ease;
+    }
+    
+    .widget-container {
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+    }

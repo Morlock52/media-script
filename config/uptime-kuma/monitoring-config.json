@@ -1,0 +1,225 @@
+{
+  "monitors": [
+    {
+      "name": "Jellyfin Media Server",
+      "type": "http",
+      "url": "http://jellyfin:8096/health",
+      "interval": 60,
+      "retryInterval": 60,
+      "maxRetries": 3,
+      "timeout": 48,
+      "acceptedStatusCodes": ["200-299"],
+      "tags": ["media", "core"],
+      "notifications": ["email", "discord"],
+      "description": "Jellyfin media server health check"
+    },
+    {
+      "name": "Sonarr TV Management",
+      "type": "http", 
+      "url": "http://sonarr:8989/api/v3/system/status",
+      "interval": 120,
+      "retryInterval": 60,
+      "maxRetries": 3,
+      "headers": {
+        "X-Api-Key": "${SONARR_API_KEY}"
+      },
+      "tags": ["arr", "tv"],
+      "description": "Sonarr service monitoring"
+    },
+    {
+      "name": "Radarr Movie Management",
+      "type": "http",
+      "url": "http://radarr:7878/api/v3/system/status",
+      "interval": 120,
+      "retryInterval": 60,
+      "maxRetries": 3,
+      "headers": {
+        "X-Api-Key": "${RADARR_API_KEY}"
+      },
+      "tags": ["arr", "movies"],
+      "description": "Radarr service monitoring"
+    },
+    {
+      "name": "Prowlarr Indexer Management",
+      "type": "http",
+      "url": "http://prowlarr:9696/api/v1/system/status",
+      "interval": 300,
+      "retryInterval": 60,
+      "maxRetries": 3,
+      "headers": {
+        "X-Api-Key": "${PROWLARR_API_KEY}"
+      },
+      "tags": ["arr", "indexers"],
+      "description": "Prowlarr indexer health"
+    },
+    {
+      "name": "qBittorrent Download Client",
+      "type": "http",
+      "url": "http://qbittorrent:8080/api/v2/app/version",
+      "interval": 180,
+      "retryInterval": 60,
+      "maxRetries": 3,
+      "tags": ["downloads"],
+      "description": "qBittorrent client health"
+    },
+    {
+      "name": "Tdarr Media Optimization",
+      "type": "http",
+      "url": "http://tdarr:8266/api/v2/status",
+      "interval": 300,
+      "retryInterval": 120,
+      "maxRetries": 2,
+      "tags": ["processing", "optimization"],
+      "description": "Tdarr server and node status"
+    },
+    {
+      "name": "Overseerr Request Management",
+      "type": "http",
+      "url": "http://overseerr:5055/api/v1/status",
+      "interval": 300,
+      "retryInterval": 60,
+      "maxRetries": 3,
+      "headers": {
+        "X-Api-Key": "${OVERSEERR_API_KEY}"
+      },
+      "tags": ["requests", "media"],
+      "description": "Overseerr service health"
+    },
+    {
+      "name": "Caddy Reverse Proxy",
+      "type": "http",
+      "url": "https://${DOMAIN}",
+      "interval": 60,
+      "retryInterval": 30,
+      "maxRetries": 5,
+      "followRedirect": true,
+      "tags": ["infrastructure", "proxy"],
+      "description": "Caddy proxy and SSL status"
+    },
+    {
+      "name": "Tautulli Statistics",
+      "type": "http",
+      "url": "http://tautulli:8181/api/v2?apikey=${TAUTULLI_API_KEY}&cmd=arnold",
+      "interval": 300,
+      "retryInterval": 120,
+      "maxRetries": 2,
+      "tags": ["monitoring", "stats"],
+      "description": "Tautulli monitoring service"
+    },
+    {
+      "name": "Bazarr Subtitles",
+      "type": "http",
+      "url": "http://bazarr:6767/api/system/status",
+      "interval": 300,
+      "retryInterval": 120,
+      "maxRetries": 2,
+      "headers": {
+        "X-Api-Key": "${BAZARR_API_KEY}"
+      },
+      "tags": ["subtitles", "media"],
+      "description": "Bazarr subtitle service"
+    }
+  ],
+  "statusPages": [
+    {
+      "name": "Media Stack Status",
+      "slug": "media-stack",
+      "description": "Complete media stack service status",
+      "theme": "dark",
+      "published": true,
+      "showTags": true,
+      "domainNameList": ["${DOMAIN}"],
+      "customCSS": ".status-page { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }",
+      "footerText": "Powered by Docker & Cloudflare",
+      "showPoweredBy": false,
+      "groups": [
+        {
+          "name": "Core Media Services",
+          "monitorList": [
+            "Jellyfin Media Server",
+            "Overseerr Request Management",
+            "Tautulli Statistics"
+          ]
+        },
+        {
+          "name": "Content Management (Arr Stack)",
+          "monitorList": [
+            "Sonarr TV Management", 
+            "Radarr Movie Management",
+            "Prowlarr Indexer Management",
+            "Bazarr Subtitles"
+          ]
+        },
+        {
+          "name": "Downloads & Processing",
+          "monitorList": [
+            "qBittorrent Download Client",
+            "Tdarr Media Optimization"
+          ]
+        },
+        {
+          "name": "Infrastructure",
+          "monitorList": [
+            "Caddy Reverse Proxy"
+          ]
+        }
+      ]
+    }
+  ],
+  "notifications": [
+    {
+      "name": "Discord Alerts",
+      "type": "discord",
+      "isDefault": true,
+      "applyExisting": true,
+      "discordWebhookUrl": "${DISCORD_WEBHOOK_URL}",
+      "discordUsername": "Media Stack Monitor",
+      "discordPrefixMessage": "🚨 Alert",
+      "sendResolved": true
+    },
+    {
+      "name": "Email Notifications",
+      "type": "smtp",
+      "isDefault": false,
+      "smtpHost": "${SMTP_HOST}",
+      "smtpPort": 587,
+      "smtpSecure": true,
+      "smtpUsername": "${SMTP_USERNAME}",
+      "smtpPassword": "${SMTP_PASSWORD}",
+      "emailFrom": "${SMTP_FROM}",
+      "emailTo": "${ALERT_EMAIL}",
+      "emailSubject": "Media Stack Alert - {{monitorName}}"
+    }
+  ],
+  "maintenanceSchedule": [
+    {
+      "title": "Weekly System Updates",
+      "description": "Automated container updates via Watchtower",
+      "strategy": "recurring-interval",
+      "intervalDays": 7,
+      "duration": 30,
+      "affectedMonitors": ["all"],
+      "active": false
+    },
+    {
+      "title": "Monthly Deep Maintenance",
+      "description": "Full system restart and cleanup",
+      "strategy": "manual",
+      "duration": 120,
+      "affectedMonitors": ["all"],
+      "active": false
+    }
+  ],
+  "settings": {
+    "checkBeta": false,
+    "keepDataPeriodDays": 180,
+    "serverTimezone": "${TZ}",
+    "entryPage": "dashboard",
+    "searchEngineIndex": false,
+    "primaryBaseURL": "https://status.${DOMAIN}",
+    "steamAPIKey": "",
+    "nscd": false,
+    "chromeExecutable": "",
+    "trustProxy": true
+  }
+}

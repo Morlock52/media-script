@@ -1,0 +1,489 @@
+# Optimized Docker Compose with Environment Variables
+# Reduces duplication and improves maintainability
+
+version: '3.8'
+
+# Define reusable YAML anchors for common configurations
+x-common-variables: &common-variables
+  TZ: ${TZ:-UTC}
+  PUID: ${PUID:-1000}
+  PGID: ${PGID:-1000}
+  UMASK_SET: ${UMASK:-002}
+
+x-restart-policy: &restart-policy
+  restart: ${RESTART_POLICY:-unless-stopped}
+
+x-network: &network
+  networks:
+    - ${NETWORK_NAME:-media-network}
+
+x-gpu-devices: &gpu-devices
+  devices:
+    # NVIDIA GPU (conditionally included)
+    - /dev/nvidia0:/dev/nvidia0
+    - /dev/nvidiactl:/dev/nvidiactl
+    - /dev/nvidia-modeset:/dev/nvidia-modeset
+    - /dev/nvidia-uvm:/dev/nvidia-uvm
+    - /dev/nvidia-uvm-tools:/dev/nvidia-uvm-tools
+    # Intel GPU (conditionally included)
+    - /dev/dri:/dev/dri
+  group_add:
+    - "${VIDEO_GROUP_ID:-109}"
+
+x-arr-common: &arr-common
+  <<: *common-variables
+  <<: *restart-policy
+  <<: *network
+  environment:
+    - TZ=${TZ:-UTC}
+    - PUID=${PUID:-1000}
+    - PGID=${PGID:-1000}
+    - UMASK_SET=${UMASK:-002}
+
+services:
+  # ================================
+  # CORE MEDIA SERVICES
+  # ================================
+
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    user: ${PUID:-1000}:${PGID:-1000}
+    <<: *restart-policy
+    environment:
+      - JELLYFIN_PublishedServerUrl=${JELLYFIN_PUBLISHED_SERVER_URL}
+      - JELLYFIN_FFmpeg__probesize=${JELLYFIN_FFMPEG_PROBESIZE:-50000000}
+      - JELLYFIN_FFmpeg__analyzeduration=${JELLYFIN_FFMPEG_ANALYZEDURATION:-50000000}
+      - NVIDIA_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES:-all}
+      - NVIDIA_DRIVER_CAPABILITIES=${NVIDIA_DRIVER_CAPABILITIES:-compute,utility,video}
+    volumes:
+      - ${CONFIG_PATH}/jellyfin:/config
+      - ${CONFIG_PATH}/jellyfin/cache:/cache
+      - ${TV_PATH}:/data/tv:ro
+      - ${MOVIES_PATH}:/data/movies:ro
+      - ${MUSIC_PATH}:/data/music:ro
+      - ${BOOKS_PATH}:/data/books:ro
+      - ${ANIME_PATH}:/data/anime:ro
+      - ${DOCUMENTARIES_PATH}:/data/documentaries:ro
+      - ${4K_PATH}:/data/4k:ro
+      - ${JELLYFIN_TRANSCODE}:/tmp/jellyfin-transcode
+    # Conditional GPU devices
+    devices: []
+    #  - /dev/dri:/dev/dri  # Intel GPU
+    #  - /dev/nvidia0:/dev/nvidia0  # NVIDIA GPU
+    group_add: []
+    #  - "${VIDEO_GROUP_ID:-109}"
+    <<: *network
+    expose:
+      - "8096"
+    labels:
+      - "caddy.reverse_proxy={{upstreams 8096}}"
+
+  # ================================
+  # ARR STACK SERVICES  
+  # ================================
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    <<: *arr-common
+    volumes:
+      - ${CONFIG_PATH}/sonarr:/config
+      - ${DOWNLOADS_PATH}:/downloads
+      - ${TV_PATH}:/tv
+    expose:
+      - "8989"
+    labels:
+      - "caddy.reverse_proxy={{upstreams 8989}}"
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    <<: *arr-common
+    volumes:
+      - ${CONFIG_PATH}/radarr:/config
+      - ${DOWNLOADS_PATH}:/downloads
+      - ${MOVIES_PATH}:/movies
+    expose:
+      - "7878"
+    labels:
+      - "caddy.reverse_proxy={{upstreams 7878}}"
+
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    <<: *arr-common
+    volumes:
+      - ${CONFIG_PATH}/lidarr:/config
+      - ${DOWNLOADS_PATH}:/downloads
+      - ${MUSIC_PATH}:/music
+    expose:
+      - "8686"
+    labels:
+      - "caddy.reverse_proxy={{upstreams 8686}}"
+
+  readarr:
+    image: lscr.io/linuxserver/readarr:latest
+    container_name: readarr
+    <<: *arr-common
+    volumes:
+      - ${CONFIG_PATH}/readarr:/config
+      - ${DOWNLOADS_PATH}:/downloads
+      - ${BOOKS_PATH}:/books
+    expose:
+      - "8787"
+    labels:
+      - "caddy.reverse_proxy={{upstreams 8787}}"
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    <<: *arr-common
+    volumes:
+      - ${CONFIG_PATH}/prowlarr:/config
+    expose:
+      - "9696"
+    labels:
+      - "caddy.reverse_proxy={{upstreams 9696}}"
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    <<: *arr-common
+    volumes:
+      - ${CONFIG_PATH}/bazarr:/config
+      - ${MOVIES_PATH}:/movies
+      - ${TV_PATH}:/tv
+    expose:
+      - "6767"
+    labels:
+      - "caddy.reverse_proxy={{upstreams 6767}}"
+
+  # ================================
+  # DOWNLOAD & PROCESSING
+  # ================================
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    <<: *common-variables
+    <<: *restart-policy
+    environment:
+      - TZ=${TZ:-UTC}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - UMASK_SET=${UMASK:-002}
+      - WEBUI_PORT=${QBITTORRENT_WEBUI_PORT:-8080}
+    volumes:
+      - ${CONFIG_PATH}/qbittorrent:/config
+      - ${DOWNLOADS_PATH}:/downloads
+    <<: *network
+    expose:
+      - "${QBITTORRENT_WEBUI_PORT:-8080}"
+    labels:
+      - "caddy.reverse_proxy={{upstreams ${QBITTORRENT_WEBUI_PORT:-8080}}}"
+
+  # Tdarr Server
+  tdarr:
+    image: ghcr.io/haveagitgat/tdarr:latest
+    container_name: tdarr
+    <<: *restart-policy
+    environment:
+      - TZ=${TZ:-UTC}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - UMASK_SET=${UMASK:-002}
+      - serverIP=${TDARR_SERVER_IP:-0.0.0.0}
+      - serverPort=${TDARR_SERVER_PORT:-8265}
+      - webUIPort=${TDARR_WEBUI_PORT:-8266}
+      - internalNode=true
+      - inContainer=true
+      - ffmpegVersion=${TDARR_FFMPEG_VERSION:-7}
+      - nodeName=${TDARR_NODE_NAME:-TdarrMainNode}
+      - NVIDIA_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES:-all}
+      - NVIDIA_DRIVER_CAPABILITIES=${NVIDIA_DRIVER_CAPABILITIES:-compute,utility,video}
+    volumes:
+      - ${CONFIG_PATH}/tdarr/server:/app/server
+      - ${CONFIG_PATH}/tdarr/configs:/app/configs
+      - ${CONFIG_PATH}/tdarr/logs:/app/logs
+      - ${MEDIA_PATH}:/media
+      - ${TDARR_TRANSCODE}:/temp
+      - ${TEMP_PATH}/tdarr:/tmp
+    # GPU devices conditionally included
+    devices: []
+    group_add: []
+    <<: *network
+    expose:
+      - "${TDARR_SERVER_PORT:-8265}"
+      - "${TDARR_WEBUI_PORT:-8266}"
+    labels:
+      - "caddy.reverse_proxy={{upstreams ${TDARR_WEBUI_PORT:-8266}}}"
+
+  # Tdarr Node 1
+  tdarr-node-1:
+    image: ghcr.io/haveagitgat/tdarr_node:latest
+    container_name: tdarr-node-1
+    <<: *restart-policy
+    environment:
+      - TZ=${TZ:-UTC}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - UMASK_SET=${UMASK:-002}
+      - nodeName=TdarrNode1
+      - serverIP=tdarr
+      - serverPort=${TDARR_WEBUI_PORT:-8266}
+      - inContainer=true
+      - ffmpegVersion=${TDARR_FFMPEG_VERSION:-7}
+      - transcodecpuWorkers=${TDARR_CPU_WORKERS:-2}
+      - transcodegpuWorkers=${TDARR_GPU_WORKERS:-1}
+      - healthcheckcpuWorkers=${TDARR_HEALTHCHECK_CPU_WORKERS:-1}
+      - healthcheckgpuWorkers=${TDARR_HEALTHCHECK_GPU_WORKERS:-1}
+      - NVIDIA_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES:-all}
+      - NVIDIA_DRIVER_CAPABILITIES=${NVIDIA_DRIVER_CAPABILITIES:-compute,utility,video}
+    volumes:
+      - ${CONFIG_PATH}/tdarr/configs:/app/configs
+      - ${CONFIG_PATH}/tdarr/logs:/app/logs
+      - ${MEDIA_PATH}:/media
+      - ${TDARR_TRANSCODE}:/temp
+      - ${TEMP_PATH}/tdarr-node-1:/tmp
+    devices: []
+    group_add: []
+    <<: *network
+    depends_on:
+      - tdarr
+
+  # ================================
+  # PROCESSING TOOLS
+  # ================================
+
+  handbrake:
+    image: jlesage/handbrake:latest
+    container_name: handbrake
+    environment:
+      - USER_ID=${HANDBRAKE_USER_ID}
+      - GROUP_ID=${HANDBRAKE_GROUP_ID}
+      - TZ=${TZ:-UTC}
+      - KEEP_APP_RUNNING=${HANDBRAKE_KEEP_APP_RUNNING:-1}
+      - CLEAN_TMP_DIR=${HANDBRAKE_CLEAN_TMP_DIR:-1}
+      - AUTOMATED_CONVERSION=${HANDBRAKE_AUTOMATED_CONVERSION:-1}
+      - AUTOMATED_CONVERSION_PRESET=${HANDBRAKE_AUTOMATED_CONVERSION_PRESET:-General/Fast 1080p30}
+      - AUTOMATED_CONVERSION_FORMAT=${HANDBRAKE_AUTOMATED_CONVERSION_FORMAT:-mp4}
+    volumes:
+      - ${CONFIG_PATH}/handbrake:/config
+      - ${MEDIA_PATH}:/storage:rw
+      - ${DOWNLOADS_CONVERT_INPUT}:/watch:rw
+      - ${DOWNLOADS_CONVERT_OUTPUT}:/output:rw
+    <<: *network
+    <<: *restart-policy
+    expose:
+      - "${HANDBRAKE_PORT:-5800}"
+    labels:
+      - "caddy.reverse_proxy={{upstreams ${HANDBRAKE_PORT:-5800}}}"
+
+  mkvtoolnix:
+    image: jlesage/mkvtoolnix:latest
+    container_name: mkvtoolnix
+    environment:
+      - USER_ID=${MKVTOOLNIX_USER_ID}
+      - GROUP_ID=${MKVTOOLNIX_GROUP_ID}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - ${CONFIG_PATH}/mkvtoolnix:/config
+      - ${MEDIA_PATH}:/storage:rw
+    <<: *network
+    <<: *restart-policy
+    expose:
+      - "${MKVTOOLNIX_PORT:-5800}"
+    labels:
+      - "caddy.reverse_proxy={{upstreams ${MKVTOOLNIX_PORT:-5800}}}"
+
+  # ================================
+  # MEDIA REQUEST & MONITORING
+  # ================================
+
+  overseerr:
+    image: sctx/overseerr:latest
+    container_name: overseerr
+    environment:
+      - LOG_LEVEL=${OVERSEERR_LOG_LEVEL:-debug}
+      - TZ=${TZ:-UTC}
+      - PORT=${OVERSEERR_PORT:-5055}
+    volumes:
+      - ${CONFIG_PATH}/overseerr:/app/config
+    <<: *network
+    <<: *restart-policy
+    expose:
+      - "${OVERSEERR_PORT:-5055}"
+    labels:
+      - "caddy.reverse_proxy={{upstreams ${OVERSEERR_PORT:-5055}}}"
+
+  tautulli:
+    image: lscr.io/linuxserver/tautulli:latest
+    container_name: tautulli
+    <<: *arr-common
+    volumes:
+      - ${CONFIG_PATH}/tautulli:/config
+    expose:
+      - "8181"
+    labels:
+      - "caddy.reverse_proxy={{upstreams 8181}}"
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=${FLARESOLVERR_LOG_LEVEL:-info}
+      - LOG_HTML=${FLARESOLVERR_LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${FLARESOLVERR_CAPTCHA_SOLVER:-none}
+      - TZ=${TZ:-UTC}
+    <<: *network
+    <<: *restart-policy
+    expose:
+      - "8191"
+
+  # ================================
+  # DASHBOARD & MONITORING
+  # ================================
+
+  homarr:
+    image: ghcr.io/ajnart/homarr:latest
+    container_name: homarr
+    <<: *restart-policy
+    environment:
+      - TZ=${TZ:-UTC}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+    volumes:
+      - ${HOMARR_CONFIG_PATH}/configs:/app/data/configs
+      - ${HOMARR_CONFIG_PATH}/icons:/app/public/icons
+      - ${HOMARR_CONFIG_PATH}/data:/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    <<: *network
+    expose:
+      - "${HOMARR_PORT:-7575}"
+    labels:
+      - "caddy.reverse_proxy={{upstreams ${HOMARR_PORT:-7575}}}"
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: uptime-kuma
+    <<: *restart-policy
+    environment:
+      - TZ=${TZ:-UTC}
+    volumes:
+      - ${CONFIG_PATH}/uptime-kuma:/app/data
+    <<: *network
+    expose:
+      - "${UPTIME_KUMA_PORT:-3001}"
+    labels:
+      - "caddy.reverse_proxy={{upstreams ${UPTIME_KUMA_PORT:-3001}}}"
+
+  # ================================
+  # REVERSE PROXY
+  # ================================
+
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    <<: *restart-policy
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "${EXTERNAL_HTTP_PORT:-80}:80"
+      - "${EXTERNAL_HTTPS_PORT:-443}:443"
+      - "${EXTERNAL_HTTPS_UDP_PORT:-443}:443/udp"
+    volumes:
+      - ${CONFIG_PATH}/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ${CONFIG_PATH}/caddy/data:/data
+      - ${CONFIG_PATH}/caddy/config:/config
+    <<: *network
+    environment:
+      - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL}
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+      - DOMAIN=${DOMAIN}
+
+  # ================================
+  # OPTIONAL SERVICES
+  # ================================
+
+  # Alternative Dashboards
+  heimdall:
+    image: lscr.io/linuxserver/heimdall:latest
+    container_name: heimdall
+    <<: *arr-common
+    volumes:
+      - ${CONFIG_PATH}/heimdall:/config
+    expose:
+      - "${HEIMDALL_PORT:-80}"
+    labels:
+      - "caddy.reverse_proxy={{upstreams ${HEIMDALL_PORT:-80}}}"
+    profiles:
+      - "alternative-dashboard"
+
+  organizr:
+    image: organizr/organizr:latest
+    container_name: organizr
+    <<: *common-variables
+    <<: *restart-policy
+    volumes:
+      - ${CONFIG_PATH}/organizr:/config
+    <<: *network
+    expose:
+      - "${ORGANIZR_PORT:-80}"
+    labels:
+      - "caddy.reverse_proxy={{upstreams ${ORGANIZR_PORT:-80}}}"
+    profiles:
+      - "alternative-dashboard"
+
+  # Auto-Updates
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower
+    <<: *restart-policy
+    environment:
+      - TZ=${TZ:-UTC}
+      - WATCHTOWER_CLEANUP=${WATCHTOWER_CLEANUP:-true}
+      - WATCHTOWER_POLL_INTERVAL=${WATCHTOWER_POLL_INTERVAL:-86400}
+      - WATCHTOWER_INCLUDE_STOPPED=${WATCHTOWER_INCLUDE_STOPPED:-true}
+      - WATCHTOWER_REVIVE_STOPPED=${WATCHTOWER_REVIVE_STOPPED:-false}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    <<: *network
+    profiles:
+      - "auto-update"
+
+  # Secondary Tdarr Node (CPU-only)
+  tdarr-node-2:
+    image: ghcr.io/haveagitgat/tdarr_node:latest
+    container_name: tdarr-node-2
+    <<: *restart-policy
+    environment:
+      - TZ=${TZ:-UTC}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - UMASK_SET=${UMASK:-002}
+      - nodeName=TdarrNode2
+      - serverIP=tdarr
+      - serverPort=${TDARR_WEBUI_PORT:-8266}
+      - inContainer=true
+      - ffmpegVersion=${TDARR_FFMPEG_VERSION:-7}
+      - transcodecpuWorkers=${TDARR_CPU_WORKERS_2:-1}
+      - transcodegpuWorkers=0
+      - healthcheckcpuWorkers=1
+      - healthcheckgpuWorkers=0
+    volumes:
+      - ${CONFIG_PATH}/tdarr/configs:/app/configs
+      - ${CONFIG_PATH}/tdarr/logs:/app/logs
+      - ${MEDIA_PATH}:/media
+      - ${TDARR_TRANSCODE}:/temp
+      - ${TEMP_PATH}/tdarr-node-2:/tmp
+    <<: *network
+    depends_on:
+      - tdarr
+    profiles:
+      - "multi-node"
+
+networks:
+  media-network:
+    name: ${NETWORK_NAME:-media-network}
+    driver: bridge

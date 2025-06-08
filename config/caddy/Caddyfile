@@ -1,0 +1,127 @@
+{
+    email {$CLOUDFLARE_EMAIL}
+    acme_dns cloudflare {$CLOUDFLARE_API_TOKEN}
+}
+
+# Jellyfin Media Server
+jellyfin.{$DOMAIN} {
+    reverse_proxy jellyfin:8096 {
+        header_up X-Forwarded-Proto https
+        header_up X-Forwarded-For {remote_host}
+    }
+    
+    # WebSocket support for real-time updates
+    handle /socket* {
+        reverse_proxy jellyfin:8096
+    }
+}
+
+# Sonarr (TV Shows)
+sonarr.{$DOMAIN} {
+    reverse_proxy sonarr:8989 {
+        header_up X-Forwarded-Proto https
+    }
+}
+
+# Radarr (Movies)
+radarr.{$DOMAIN} {
+    reverse_proxy radarr:7878 {
+        header_up X-Forwarded-Proto https
+    }
+}
+
+# Lidarr (Music)
+lidarr.{$DOMAIN} {
+    reverse_proxy lidarr:8686 {
+        header_up X-Forwarded-Proto https
+    }
+}
+
+# Readarr (Books)
+readarr.{$DOMAIN} {
+    reverse_proxy readarr:8787 {
+        header_up X-Forwarded-Proto https
+    }
+}
+
+# Prowlarr (Indexer Management)
+prowlarr.{$DOMAIN} {
+    reverse_proxy prowlarr:9696 {
+        header_up X-Forwarded-Proto https
+    }
+}
+
+# qBittorrent (Download Client)
+qbittorrent.{$DOMAIN} {
+    reverse_proxy qbittorrent:8080 {
+        header_up X-Forwarded-Proto https
+    }
+}
+
+# Overseerr (Media Requests)
+overseerr.{$DOMAIN} {
+    reverse_proxy overseerr:5055 {
+        header_up X-Forwarded-Proto https
+    }
+}
+
+# Tautulli (Monitoring)
+tautulli.{$DOMAIN} {
+    reverse_proxy tautulli:8181 {
+        header_up X-Forwarded-Proto https
+    }
+}
+
+# Bazarr (Subtitles)
+bazarr.{$DOMAIN} {
+    reverse_proxy bazarr:6767 {
+        header_up X-Forwarded-Proto https
+    }
+}
+
+# HandBrake (Format Conversion)
+handbrake.{$DOMAIN} {
+    reverse_proxy handbrake:5800 {
+        header_up X-Forwarded-Proto https
+    }
+}
+
+# MKVToolNix (Container Management)
+mkvtoolnix.{$DOMAIN} {
+    reverse_proxy mkvtoolnix:5800 {
+        header_up X-Forwarded-Proto https
+    }
+}
+
+# Tdarr (Media Optimization)
+tdarr.{$DOMAIN} {
+    reverse_proxy tdarr:8266 {
+        header_up X-Forwarded-Proto https
+    }
+}
+
+# Homarr (Dashboard)
+dashboard.{$DOMAIN} {
+    reverse_proxy homarr:7575 {
+        header_up X-Forwarded-Proto https
+    }
+}
+
+
+# Uptime Kuma (Monitoring)
+status.{$DOMAIN} {
+    reverse_proxy uptime-kuma:3001 {
+        header_up X-Forwarded-Proto https
+        header_up X-Forwarded-For {remote_host}
+    }
+    
+    # WebSocket support for real-time updates
+    handle /socket.io/* {
+        reverse_proxy uptime-kuma:3001
+    }
+}
+
+# Main domain redirect to Dashboard
+{$DOMAIN} {
+    redir https://dashboard.{$DOMAIN}{uri}
+}

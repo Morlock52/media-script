@@ -1,0 +1,543 @@
+version: '3.8'
+
+services:
+  # Media Server with Enhanced Format Support
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    user: 1000:1000
+    restart: unless-stopped
+    environment:
+      - JELLYFIN_PublishedServerUrl=https://jellyfin.${DOMAIN}
+      - JELLYFIN_FFmpeg__probesize=50000000
+      - JELLYFIN_FFmpeg__analyzeduration=50000000
+    volumes:
+      - ./config/jellyfin:/config
+      - ./config/jellyfin/cache:/cache
+      - /media/tv:/data/tv:ro
+      - /media/movies:/data/movies:ro
+      - /media/music:/data/music:ro
+      - /media/books:/data/books:ro
+      - /media/anime:/data/anime:ro
+      - /media/documentaries:/data/documentaries:ro
+      - /media/4k:/data/4k:ro
+      - /tmp/jellyfin-transcode:/tmp/jellyfin-transcode
+    devices:
+      # Intel GPU hardware acceleration (uncomment if available)
+      # - /dev/dri:/dev/dri
+      # NVIDIA GPU hardware acceleration (uncomment if available)
+      # - /dev/nvidia0:/dev/nvidia0
+      # - /dev/nvidiactl:/dev/nvidiactl
+      # - /dev/nvidia-modeset:/dev/nvidia-modeset
+      # - /dev/nvidia-uvm:/dev/nvidia-uvm
+      # - /dev/nvidia-uvm-tools:/dev/nvidia-uvm-tools
+    group_add:
+      # Video group for hardware acceleration (uncomment if using GPU)
+      # - "109"  # video group - check with: getent group video
+    networks:
+      - media-network
+    expose:
+      - "8096"
+    labels:
+      - "caddy.reverse_proxy={{upstreams 8096}}"
+      - "caddy.header./*"
+      - "caddy.header./* +X-Forwarded-Proto https"
+      - "caddy.header./* +X-Forwarded-For {remote_host}"
+
+  # Indexer Management
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-UTC}
+      - UMASK=002
+    volumes:
+      - ./config/prowlarr:/config
+    networks:
+      - media-network
+    restart: unless-stopped
+    expose:
+      - "9696"
+    labels:
+      - "caddy.reverse_proxy={{upstreams 9696}}"
+
+  # TV Shows Manager
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-UTC}
+      - UMASK=002
+    volumes:
+      - ./config/sonarr:/config
+      - /downloads:/downloads
+      - /media/tv:/tv
+    networks:
+      - media-network
+    restart: unless-stopped
+    expose:
+      - "8989"
+    labels:
+      - "caddy.reverse_proxy={{upstreams 8989}}"
+
+  # Movies Manager
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-UTC}
+      - UMASK=002
+    volumes:
+      - ./config/radarr:/config
+      - /downloads:/downloads
+      - /media/movies:/movies
+    networks:
+      - media-network
+    restart: unless-stopped
+    expose:
+      - "7878"
+    labels:
+      - "caddy.reverse_proxy={{upstreams 7878}}"
+
+  # Music Manager
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-UTC}
+      - UMASK=002
+    volumes:
+      - ./config/lidarr:/config
+      - /downloads:/downloads
+      - /media/music:/music
+    networks:
+      - media-network
+    restart: unless-stopped
+    expose:
+      - "8686"
+    labels:
+      - "caddy.reverse_proxy={{upstreams 8686}}"
+
+  # Books Manager
+  readarr:
+    image: lscr.io/linuxserver/readarr:latest
+    container_name: readarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-UTC}
+      - UMASK=002
+    volumes:
+      - ./config/readarr:/config
+      - /downloads:/downloads
+      - /media/books:/books
+    networks:
+      - media-network
+    restart: unless-stopped
+    expose:
+      - "8787"
+    labels:
+      - "caddy.reverse_proxy={{upstreams 8787}}"
+
+  # Download Client
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-UTC}
+      - UMASK=002
+      - WEBUI_PORT=8080
+    volumes:
+      - ./config/qbittorrent:/config
+      - /downloads:/downloads
+    networks:
+      - media-network
+    restart: unless-stopped
+    expose:
+      - "8080"
+    labels:
+      - "caddy.reverse_proxy={{upstreams 8080}}"
+
+  # Usenet Client
+  nzbget:
+    image: lscr.io/linuxserver/nzbget:latest
+    container_name: nzbget
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ:-UTC}
+      - UMASK=${UMASK}
+      - NZBGET_USER=${NZBGET_USER}
+      - NZBGET_PASS=${NZBGET_PASS}
+      - NZBGET_PORT=${NZBGET_PORT}
+    volumes:
+      - ./config/nzbget:/config
+      - ${DOWNLOADS_PATH}:/downloads
+    networks:
+      - media-network
+    restart: unless-stopped
+    expose:
+      - "${NZBGET_PORT}"
+    labels:
+      - "caddy.reverse_proxy={{upstreams ${NZBGET_PORT}}}"
+
+  # Media Request Management
+  overseerr:
+    image: sctx/overseerr:latest
+    container_name: overseerr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ:-UTC}
+      - UMASK=${UMASK}
+      - LOG_LEVEL=${OVERSEERR_LOG_LEVEL}
+      - PORT=${OVERSEERR_PORT}
+    volumes:
+      - ./config/overseerr:/config
+    networks:
+      - media-network
+    restart: unless-stopped
+    expose:
+      - "5055"
+    labels:
+      - "caddy.reverse_proxy={{upstreams 5055}}"
+
+  # Cloudflare Bypass for Protected Indexers
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ:-UTC}
+      - UMASK=${UMASK}
+      - LOG_LEVEL=${FLARESOLVERR_LOG_LEVEL}
+      - LOG_HTML=${FLARESOLVERR_LOG_HTML}
+      - CAPTCHA_SOLVER=${FLARESOLVERR_CAPTCHA_SOLVER}
+    volumes:
+      - ./config/flaresolverr:/config
+    networks:
+      - media-network
+    restart: unless-stopped
+    expose:
+      - "8191"
+
+  # Reverse Proxy with SSL
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./config/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./config/caddy/data:/data
+      - ./config/caddy/config:/config
+    networks:
+      - media-network
+    environment:
+      - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL}
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+      - DOMAIN=${DOMAIN}
+
+  # System Monitoring
+  tautulli:
+    image: lscr.io/linuxserver/tautulli:latest
+    container_name: tautulli
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-UTC}
+    volumes:
+      - ./config/tautulli:/config
+    networks:
+      - media-network
+    restart: unless-stopped
+    expose:
+      - "8181"
+    labels:
+      - "caddy.reverse_proxy={{upstreams 8181}}"
+
+  # Subtitle Management
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-UTC}
+      - UMASK=002
+    volumes:
+      - ./config/bazarr:/config
+      - /media/movies:/movies
+      - /media/tv:/tv
+    networks:
+      - media-network
+    restart: unless-stopped
+    expose:
+      - "6767"
+    labels:
+      - "caddy.reverse_proxy={{upstreams 6767}}"
+
+  # Media Format Converter and Processor
+  handbrake:
+    image: jlesage/handbrake:latest
+    container_name: handbrake
+    environment:
+      - USER_ID=1000
+      - GROUP_ID=1000
+      - TZ=${TZ:-UTC}
+      - KEEP_APP_RUNNING=1
+      - CLEAN_TMP_DIR=1
+      - AUTOMATED_CONVERSION=1
+      - AUTOMATED_CONVERSION_PRESET=General/Fast 1080p30
+      - AUTOMATED_CONVERSION_FORMAT=mp4
+    volumes:
+      - ./config/handbrake:/config
+      - /media:/storage:rw
+      - /downloads/convert-input:/watch:rw
+      - /downloads/convert-output:/output:rw
+    networks:
+      - media-network
+    restart: unless-stopped
+    expose:
+      - "5800"
+    labels:
+      - "caddy.reverse_proxy={{upstreams 5800}}"
+
+  # FFmpeg Processing Service
+  ffmpeg-processor:
+    image: linuxserver/ffmpeg:latest
+    container_name: ffmpeg-processor
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-UTC}
+    volumes:
+      - ./config/ffmpeg:/config
+      - /downloads:/downloads
+      - /media:/media
+      - ./scripts/ffmpeg:/scripts
+    networks:
+      - media-network
+    restart: unless-stopped
+    command: tail -f /dev/null
+
+  # MKVToolNix for container management
+  mkvtoolnix:
+    image: jlesage/mkvtoolnix:latest
+    container_name: mkvtoolnix
+    environment:
+      - USER_ID=1000
+      - GROUP_ID=1000
+      - TZ=${TZ:-UTC}
+    volumes:
+      - ./config/mkvtoolnix:/config
+      - /media:/storage:rw
+    networks:
+      - media-network
+    restart: unless-stopped
+    expose:
+      - "5800"
+    labels:
+      - "caddy.reverse_proxy={{upstreams 5800}}"
+
+  # Tdarr Server - Media Library Analytics & Transcode Automation
+  tdarr:
+    image: ghcr.io/haveagitgat/tdarr:latest
+    container_name: tdarr
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-UTC}
+      - PUID=1000
+      - PGID=1000
+      - UMASK_SET=002
+      - serverIP=0.0.0.0
+      - serverPort=8265
+      - webUIPort=8266
+      - internalNode=true
+      - inContainer=true
+      - ffmpegVersion=7
+      - nodeName=TdarrMainNode
+      # Hardware acceleration settings
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility,video
+    volumes:
+      - ./config/tdarr/server:/app/server
+      - ./config/tdarr/configs:/app/configs
+      - ./config/tdarr/logs:/app/logs
+      - /media:/media
+      - /downloads/tdarr-transcode:/temp
+      - /tmp/tdarr:/tmp
+    devices:
+      # Intel GPU hardware acceleration (uncomment if available)
+      # - /dev/dri:/dev/dri
+      # NVIDIA GPU hardware acceleration (uncomment if available)
+      # - /dev/nvidia0:/dev/nvidia0
+      # - /dev/nvidiactl:/dev/nvidiactl
+      # - /dev/nvidia-modeset:/dev/nvidia-modeset
+      # - /dev/nvidia-uvm:/dev/nvidia-uvm
+      # - /dev/nvidia-uvm-tools:/dev/nvidia-uvm-tools
+    group_add:
+      # Video group for hardware acceleration (uncomment if using GPU)
+      # - "109"  # video group - check with: getent group video
+    networks:
+      - media-network
+    expose:
+      - "8265"  # Server port
+      - "8266"  # Web UI port
+    labels:
+      - "caddy.reverse_proxy={{upstreams 8266}}"
+
+  # Tdarr Node 1 - Additional processing power
+  tdarr-node-1:
+    image: ghcr.io/haveagitgat/tdarr_node:latest
+    container_name: tdarr-node-1
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-UTC}
+      - PUID=1000
+      - PGID=1000
+      - UMASK_SET=002
+      - nodeName=TdarrNode1
+      - serverIP=tdarr
+      - serverPort=8266
+      - inContainer=true
+      - ffmpegVersion=7
+      # Worker allocation (adjust based on your hardware)
+      - transcodecpuWorkers=${TDARR_CPU_WORKERS:-2}
+      - transcodegpuWorkers=${TDARR_GPU_WORKERS:-1}
+      - healthcheckcpuWorkers=${TDARR_HEALTHCHECK_CPU_WORKERS:-1}
+      - healthcheckgpuWorkers=${TDARR_HEALTHCHECK_GPU_WORKERS:-1}
+      # Hardware acceleration settings
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility,video
+    volumes:
+      - ./config/tdarr/configs:/app/configs
+      - ./config/tdarr/logs:/app/logs
+      - /media:/media
+      - /downloads/tdarr-transcode:/temp
+      - /tmp/tdarr-node-1:/tmp
+    devices:
+      # Intel GPU hardware acceleration (uncomment if available)
+      # - /dev/dri:/dev/dri
+      # NVIDIA GPU hardware acceleration (uncomment if available)
+      # - /dev/nvidia0:/dev/nvidia0
+      # - /dev/nvidiactl:/dev/nvidiactl
+      # - /dev/nvidia-modeset:/dev/nvidia-modeset
+      # - /dev/nvidia-uvm:/dev/nvidia-uvm
+      # - /dev/nvidia-uvm-tools:/dev/nvidia-uvm-tools
+    group_add:
+      # Video group for hardware acceleration (uncomment if using GPU)
+      # - "109"  # video group - check with: getent group video
+    networks:
+      - media-network
+    depends_on:
+      - tdarr
+
+  # Tdarr Node 2 - CPU-only processing (optional)
+  tdarr-node-2:
+    image: ghcr.io/haveagitgat/tdarr_node:latest
+    container_name: tdarr-node-2
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-UTC}
+      - PUID=1000
+      - PGID=1000
+      - UMASK_SET=002
+      - nodeName=TdarrNode2
+      - serverIP=tdarr
+      - serverPort=8266
+      - inContainer=true
+      - ffmpegVersion=7
+      # CPU-only workers
+      - transcodecpuWorkers=${TDARR_CPU_WORKERS_2:-1}
+      - transcodegpuWorkers=0
+      - healthcheckcpuWorkers=1
+      - healthcheckgpuWorkers=0
+    volumes:
+      - ./config/tdarr/configs:/app/configs
+      - ./config/tdarr/logs:/app/logs
+      - /media:/media
+      - /downloads/tdarr-transcode:/temp
+      - /tmp/tdarr-node-2:/tmp
+    networks:
+      - media-network
+    depends_on:
+      - tdarr
+    profiles:
+      - "multi-node"  # Only start if multi-node profile is enabled
+
+  # Homarr - Modern Media Stack Dashboard
+  homarr:
+    image: ghcr.io/ajnart/homarr:latest
+    container_name: homarr
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-UTC}
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ./config/homarr/configs:/app/data/configs
+      - ./config/homarr/icons:/app/public/icons
+      - ./config/homarr/data:/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro  # For Docker integration
+    networks:
+      - media-network
+    expose:
+      - "7575"
+    labels:
+      - "caddy.reverse_proxy={{upstreams 7575}}"
+
+
+  # Uptime Kuma - Service Monitoring
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: uptime-kuma
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-UTC}
+    volumes:
+      - ./config/uptime-kuma:/app/data
+    networks:
+      - media-network
+    expose:
+      - "3001"
+    labels:
+      - "caddy.reverse_proxy={{upstreams 3001}}"
+
+  # Watchtower - Automatic Container Updates
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-UTC}
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_POLL_INTERVAL=86400  # Check daily
+      - WATCHTOWER_INCLUDE_STOPPED=true
+      - WATCHTOWER_REVIVE_STOPPED=false
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - media-network
+    profiles:
+      - "auto-update"  # Only start if auto-update profile is enabled
+
+networks:
+  media-network:
+    driver: bridge
