@@ -49,45 +49,101 @@ check_environment() {
     source "$PROJECT_ROOT/.env"
     set +a
     
-    # Check for basic configuration
-    if [[ "$DOMAIN" == *"yourdomain"* ]] || [[ "$CLOUDFLARE_API_TOKEN" == *"your-"* ]]; then
-        error "Environment not properly configured"
-        info "Run: ./scripts/env-manager.sh init"
-        exit 1
+    # Check for basic configuration (skip Cloudflare check if LOCAL_ONLY=true)
+    if [[ "$LOCAL_ONLY" != "true" ]]; then
+        if [[ "$DOMAIN" == *"yourdomain"* ]] || [[ "$CLOUDFLARE_API_TOKEN" == *"your-"* ]]; then
+            error "Environment not properly configured for remote access"
+            info "Run: ./scripts/env-manager.sh init or set LOCAL_ONLY=true for local access"
+            exit 1
+        fi
     fi
     
     log "Environment configuration validated"
 }
 
-# Detect available GPU acceleration
+# Detect platform for cross-platform compatibility
+detect_platform() {
+    case "$(uname -s)" in
+        Darwin*) echo "macos" ;;
+        Linux*)
+            if grep -q Microsoft /proc/version 2>/dev/null; then
+                echo "wsl"
+            else
+                echo "linux"
+            fi
+            ;;
+        CYGWIN*|MINGW*|MSYS*) echo "windows" ;;
+        *) echo "unknown" ;;
+    esac
+}
+
+# Detect available GPU acceleration (cross-platform)
 detect_gpu() {
     local gpu_detected=""
+    local platform=$(detect_platform)
     
-    # Check for NVIDIA GPU
-    if command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi >/dev/null 2>&1; then
-        gpu_detected="nvidia"
-        info "NVIDIA GPU detected: $(nvidia-smi --query-gpu=name --format=csv,noheader,nounits | head -1)"
-    fi
-    
-    # Check for Intel GPU
-    if [ -d /dev/dri ] && ls /dev/dri/render* >/dev/null 2>&1; then
-        if [ -n "$gpu_detected" ]; then
-            gpu_detected="${gpu_detected}+intel"
-        else
-            gpu_detected="intel"
-        fi
-        info "Intel GPU detected: $(lspci | grep -i vga | grep -i intel | head -1 | cut -d: -f3 | xargs)"
-    fi
-    
-    # Check for AMD GPU
-    if lspci | grep -i amd | grep -i vga >/dev/null 2>&1; then
-        if [ -n "$gpu_detected" ]; then
-            gpu_detected="${gpu_detected}+amd"
-        else
-            gpu_detected="amd"
-        fi
-        info "AMD GPU detected: $(lspci | grep -i vga | grep -i amd | head -1 | cut -d: -f3 | xargs)"
-    fi
+    case "$platform" in
+        "linux"|"wsl")
+            # Check for NVIDIA GPU
+            if command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi >/dev/null 2>&1; then
+                gpu_detected="nvidia"
+                info "NVIDIA GPU detected: $(nvidia-smi --query-gpu=name --format=csv,noheader,nounits | head -1)"
+            fi
+            
+            # Check for Intel GPU
+            if [ -d /dev/dri ] && ls /dev/dri/render* >/dev/null 2>&1; then
+                if [ -n "$gpu_detected" ]; then
+                    gpu_detected="${gpu_detected}+intel"
+                else
+                    gpu_detected="intel"
+                fi
+                if command -v lspci >/dev/null 2>&1; then
+                    info "Intel GPU detected: $(lspci | grep -i vga | grep -i intel | head -1 | cut -d: -f3 | xargs)"
+                else
+                    info "Intel GPU detected"
+                fi
+            fi
+            
+            # Check for AMD GPU
+            if command -v lspci >/dev/null 2>&1 && lspci | grep -i amd | grep -i vga >/dev/null 2>&1; then
+                if [ -n "$gpu_detected" ]; then
+                    gpu_detected="${gpu_detected}+amd"
+                else
+                    gpu_detected="amd"
+                fi
+                info "AMD GPU detected: $(lspci | grep -i vga | grep -i amd | head -1 | cut -d: -f3 | xargs)"
+            fi
+            ;;
+        "macos")
+            # Check for Metal support (Apple Silicon/Intel with discrete GPU)
+            if system_profiler SPDisplaysDataType 2>/dev/null | grep -q "Metal"; then
+                if system_profiler SPDisplaysDataType 2>/dev/null | grep -q "Apple"; then
+                    gpu_detected="apple"
+                    info "Apple Silicon GPU detected with Metal support"
+                else
+                    gpu_detected="metal"
+                    info "Metal-compatible GPU detected"
+                fi
+            fi
+            
+            # Check for NVIDIA on macOS (legacy)
+            if command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi >/dev/null 2>&1; then
+                if [ -n "$gpu_detected" ]; then
+                    gpu_detected="${gpu_detected}+nvidia"
+                else
+                    gpu_detected="nvidia"
+                fi
+                info "NVIDIA GPU detected: $(nvidia-smi --query-gpu=name --format=csv,noheader,nounits | head -1)"
+            fi
+            ;;
+        "windows")
+            # Check for NVIDIA on Windows
+            if command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi >/dev/null 2>&1; then
+                gpu_detected="nvidia"
+                info "NVIDIA GPU detected: $(nvidia-smi --query-gpu=name --format=csv,noheader,nounits | head -1)"
+            fi
+            ;;
+    esac
     
     if [ -z "$gpu_detected" ]; then
         warn "No GPU acceleration detected - using CPU-only transcoding"
@@ -107,6 +163,21 @@ generate_compose_file() {
     
     # Copy base file
     cp "$source_file" "$output_file.tmp"
+    
+    # Handle local-only mode (use local template instead)
+    if [[ "$LOCAL_ONLY" == "true" ]]; then
+        log "Configuring for local-only access (no SSL)"
+        # Use local-only template
+        source_file="$PROJECT_ROOT/docker-compose.local.yml"
+        if [ -f "$source_file" ]; then
+            cp "$source_file" "$output_file.tmp"
+        else
+            warn "Local template not found, using optimized template without SSL"
+            cp "$PROJECT_ROOT/docker-compose.optimized.yml" "$output_file.tmp"
+            # Remove Caddy SSL configuration
+            sed -i.bak '/caddy\.reverse_proxy/d' "$output_file.tmp" 2>/dev/null || true
+        fi
+    fi
     
     # Configure GPU settings based on detected hardware
     case "$gpu_type" in
@@ -315,6 +386,10 @@ main() {
             shift || true
             while [[ $# -gt 0 ]]; do
                 case $1 in
+                    --local)
+                        export LOCAL_ONLY=true
+                        log "Enabling local-only mode"
+                        ;;
                     --with-auto-update)
                         profiles="${profiles:+$profiles,}auto-update"
                         ;;
@@ -392,6 +467,7 @@ main() {
             echo "  help                    Show this help message"
             echo ""
             echo "Deploy Options:"
+            echo "  --local                 Deploy for local-only access (no SSL/domain required)"
             echo "  --with-auto-update      Enable automatic container updates"
             echo "  --with-multi-node       Enable additional Tdarr processing nodes"
             echo "  --gpu <type>           Force GPU type (nvidia, intel, amd, none)"
@@ -399,6 +475,7 @@ main() {
             echo "Examples:"
             echo "  $0 init                 # First time setup"
             echo "  $0 deploy               # Basic deployment"
+            echo "  $0 deploy --local       # Local-only deployment (no domain needed)"
             echo "  $0 logs jellyfin        # View Jellyfin logs"
             echo "  $0 update               # Update all services"
             ;;

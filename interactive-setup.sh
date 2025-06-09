@@ -1015,7 +1015,7 @@ step_deployment() {
     echo
     
     (
-        docker-compose pull 2>&1 | while read -r line; do
+        docker compose pull 2>&1 | while read -r line; do
             if [[ "$line" =~ "Pulling" ]]; then
                 service=$(echo "$line" | awk '{print $2}')
                 echo -e "  ${SYMBOLS[ARROW]} Downloading: ${COLORS[CYAN]}$service${COLORS[RESET]}"
@@ -1038,7 +1038,7 @@ step_deployment() {
     info_message "Starting services..."
     echo
     
-    (docker-compose up -d) &
+    (docker compose up -d) &
     start_pid=$!
     spinner $start_pid "Starting containers"
     wait $start_pid
@@ -1063,7 +1063,7 @@ step_deployment() {
     failed_services=()
     
     for service in "${services[@]}"; do
-        if docker-compose ps "$service" 2>/dev/null | grep -q "Up"; then
+        if docker compose ps "$service" 2>/dev/null | grep -q "Up"; then
             echo -e "  ${SYMBOLS[CHECK]} ${COLORS[GREEN]}$service: Running${COLORS[RESET]}"
         else
             echo -e "  ${SYMBOLS[CROSS]} ${COLORS[RED]}$service: Failed${COLORS[RESET]}"

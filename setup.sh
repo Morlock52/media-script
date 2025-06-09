@@ -43,17 +43,93 @@ fi
 USER_ID=$(id -u)
 GROUP_ID=$(id -g)
 
-# Prompt for directories
+echo
+# Detect directory chooser frontend (AppleScript, Zenity, whiptail, or fallback)
+USE_APPLESCRIPT=false
+USE_ZENITY=false
+USE_WHIPTAIL=false
+if [[ "$OS" == "macOS" ]] && command -v osascript >/dev/null 2>&1; then
+    USE_APPLESCRIPT=true
+elif command -v zenity >/dev/null 2>&1; then
+    USE_ZENITY=true
+elif command -v whiptail >/dev/null 2>&1; then
+    USE_WHIPTAIL=true
+fi
+
+# Choose a directory via GUI/TUI or prompt
+choose_directory() {
+    local default_dir="$1"
+    if [ "$USE_APPLESCRIPT" = true ]; then
+        local chosen
+        chosen=$(osascript <<EOF
+try
+    set chosen to choose folder with prompt "Select directory" default location POSIX file "${default_dir}"
+on error
+    set chosen to choose folder with prompt "Select directory"
+end try
+POSIX path of chosen
+EOF
+)
+        printf '%s\n' "$chosen"
+    elif [ "$USE_ZENITY" = true ]; then
+        zenity --file-selection --directory --title="Select directory" --filename="$default_dir"
+    elif [ "$USE_WHIPTAIL" = true ]; then
+        whiptail --title "Select directory" --fselect "${default_dir}/" 20 60 3>&1 1>&2 2>&3
+    else
+        read -rp "${ARROW} Directory [${default_dir}]: " dir
+        printf '%s\n' "${dir:-$default_dir}"
+    fi
+}
+
+# Prompt for Media and Downloads directories with selection and creation options
 DEFAULT_MEDIA_DIR="/media"
 if [[ "$OS" != "Linux" ]]; then
     DEFAULT_MEDIA_DIR="$HOME/media"
 fi
-read -rp "${ARROW} Media directory [${DEFAULT_MEDIA_DIR}]: " MEDIA_DIR
-MEDIA_DIR="${MEDIA_DIR:-$DEFAULT_MEDIA_DIR}"
+echo
+echo -e "${CYAN}📁 Media Directory Setup${RESET}"
+while :; do
+    MEDIA_DIR=$(choose_directory "$DEFAULT_MEDIA_DIR")
+    if [ -d "$MEDIA_DIR" ]; then
+        echo -e "${GREEN}${CHECK} Using existing directory: ${RESET}$MEDIA_DIR"
+        break
+    fi
+    read -rp "${ARROW} Directory does not exist. Create? [Y/n]: " resp
+    resp="${resp:-Y}"
+    if [[ $resp =~ ^[Yy]$ ]]; then
+        if [[ "$OS" == "Linux" ]]; then
+            sudo mkdir -p "$MEDIA_DIR"
+        else
+            mkdir -p "$MEDIA_DIR"
+        fi
+        echo -e "${GREEN}${CHECK} Created directory: ${RESET}$MEDIA_DIR"
+        break
+    fi
+    echo -e "${YELLOW}Please select an existing directory.${RESET}"
+done
 
 DEFAULT_DOWNLOADS_DIR="$HOME/downloads"
-read -rp "${ARROW} Downloads directory [${DEFAULT_DOWNLOADS_DIR}]: " DOWNLOADS_DIR
-DOWNLOADS_DIR="${DOWNLOADS_DIR:-$DEFAULT_DOWNLOADS_DIR}"
+echo
+echo -e "${CYAN}📁 Downloads Directory Setup${RESET}"
+while :; do
+    DOWNLOADS_DIR=$(choose_directory "$DEFAULT_DOWNLOADS_DIR")
+    if [ -d "$DOWNLOADS_DIR" ]; then
+        echo -e "${GREEN}${CHECK} Using existing directory: ${RESET}$DOWNLOADS_DIR"
+        break
+    fi
+    read -rp "${ARROW} Directory does not exist. Create? [Y/n]: " resp
+    resp="${resp:-Y}"
+    if [[ $resp =~ ^[Yy]$ ]]; then
+        if [[ "$OS" == "Linux" ]]; then
+            sudo mkdir -p "$DOWNLOADS_DIR"
+        else
+            mkdir -p "$DOWNLOADS_DIR"
+        fi
+        echo -e "${GREEN}${CHECK} Created directory: ${RESET}$DOWNLOADS_DIR"
+        break
+    fi
+    echo -e "${YELLOW}Please select an existing directory.${RESET}"
+done
 
 echo
 echo -e "${YELLOW}Media directory: ${RESET}$MEDIA_DIR"

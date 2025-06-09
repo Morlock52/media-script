@@ -38,13 +38,30 @@ docker compose ps
 echo ""
 echo "✅ Media Stack started successfully!"
 echo ""
+# Show appropriate URLs based on deployment mode
+DOMAIN=$(grep DOMAIN= .env | cut -d= -f2)
+LOCAL_ONLY=$(grep LOCAL_ONLY= .env | cut -d= -f2 2>/dev/null)
+
 echo "🌐 Access your services at:"
-echo "   Jellyfin:     https://jellyfin.$(grep DOMAIN= .env | cut -d= -f2)"
-echo "   Overseerr:    https://overseerr.$(grep DOMAIN= .env | cut -d= -f2)"
-echo "   Prowlarr:     https://prowlarr.$(grep DOMAIN= .env | cut -d= -f2)"
-echo "   Sonarr:       https://sonarr.$(grep DOMAIN= .env | cut -d= -f2)"
-echo "   Radarr:       https://radarr.$(grep DOMAIN= .env | cut -d= -f2)"
-echo "   qBittorrent:  https://qbittorrent.$(grep DOMAIN= .env | cut -d= -f2)"
+if [[ "$LOCAL_ONLY" == "true" || "$DOMAIN" == "localhost" ]]; then
+    echo "   Jellyfin:     http://localhost:8096"
+    echo "   Dashboard:    http://localhost:7575"
+    echo "   Overseerr:    http://localhost:5055"
+    echo "   Prowlarr:     http://localhost:9696"
+    echo "   Sonarr:       http://localhost:8989"
+    echo "   Radarr:       http://localhost:7878"
+    echo "   qBittorrent:  http://localhost:8080"
+    echo "   Tdarr:        http://localhost:8266"
+else
+    echo "   Jellyfin:     https://jellyfin.$DOMAIN"
+    echo "   Dashboard:    https://dashboard.$DOMAIN"
+    echo "   Overseerr:    https://overseerr.$DOMAIN"
+    echo "   Prowlarr:     https://prowlarr.$DOMAIN"
+    echo "   Sonarr:       https://sonarr.$DOMAIN"
+    echo "   Radarr:       https://radarr.$DOMAIN"
+    echo "   qBittorrent:  https://qbittorrent.$DOMAIN"
+    echo "   Tdarr:        https://tdarr.$DOMAIN"
+fi
 echo ""
 echo "📚 See MEDIA_STACK_SETUP.md for detailed configuration instructions"
 echo "📋 Check logs: docker compose logs -f [service-name]"

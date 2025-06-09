@@ -1,0 +1,275 @@
+# Local-Only Docker Compose Configuration
+# For LAN access without SSL/domain requirements
+
+version: '3.8'
+
+# Define reusable YAML anchors for common configurations
+x-common-variables: &common-variables
+  TZ: ${TZ:-UTC}
+  PUID: ${PUID:-1000}
+  PGID: ${PGID:-1000}
+  UMASK_SET: ${UMASK:-002}
+
+x-restart-policy: &restart-policy
+  restart: ${RESTART_POLICY:-unless-stopped}
+
+x-network: &network
+  networks:
+    - ${NETWORK_NAME:-media-network}
+
+x-arr-common: &arr-common
+  <<: *common-variables
+  <<: *restart-policy
+  <<: *network
+  environment:
+    - TZ=${TZ:-UTC}
+    - PUID=${PUID:-1000}
+    - PGID=${PGID:-1000}
+    - UMASK_SET=${UMASK:-002}
+
+services:
+  # ================================
+  # CORE MEDIA SERVICES
+  # ================================
+
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    <<: *common-variables
+    <<: *restart-policy
+    environment:
+      - TZ=${TZ:-UTC}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - JELLYFIN_PublishedServerUrl=http://localhost:8096
+    volumes:
+      - ${CONFIG_PATH}/jellyfin:/config
+      - ${CONFIG_PATH}/jellyfin/cache:/cache
+      - ${TV_PATH}:/data/tv:ro
+      - ${MOVIES_PATH}:/data/movies:ro
+      - ${MUSIC_PATH}:/data/music:ro
+      - ${BOOKS_PATH}:/data/books:ro
+      - ${ANIME_PATH}:/data/anime:ro
+      - ${DOCUMENTARIES_PATH}:/data/documentaries:ro
+      - ${UHD_PATH}:/data/4k:ro
+      - ${JELLYFIN_TRANSCODE}:/tmp/jellyfin-transcode
+    devices: []
+    group_add: []
+    <<: *network
+    ports:
+      - "8096:8096"
+
+  # Indexer Management
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    <<: *arr-common
+    volumes:
+      - ${CONFIG_PATH}/prowlarr:/config
+    ports:
+      - "9696:9696"
+
+  # TV Shows Manager
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    <<: *arr-common
+    volumes:
+      - ${CONFIG_PATH}/sonarr:/config
+      - ${DOWNLOADS_PATH}:/downloads
+      - ${TV_PATH}:/tv
+    ports:
+      - "8989:8989"
+
+  # Movies Manager
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    <<: *arr-common
+    volumes:
+      - ${CONFIG_PATH}/radarr:/config
+      - ${DOWNLOADS_PATH}:/downloads
+      - ${MOVIES_PATH}:/movies
+    ports:
+      - "7878:7878"
+
+  # Music Manager
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    <<: *arr-common
+    volumes:
+      - ${CONFIG_PATH}/lidarr:/config
+      - ${DOWNLOADS_PATH}:/downloads
+      - ${MUSIC_PATH}:/music
+    ports:
+      - "8686:8686"
+
+  # Books Manager
+  readarr:
+    image: lscr.io/linuxserver/readarr:latest
+    container_name: readarr
+    <<: *arr-common
+    volumes:
+      - ${CONFIG_PATH}/readarr:/config
+      - ${DOWNLOADS_PATH}:/downloads
+      - ${BOOKS_PATH}:/books
+    ports:
+      - "8787:8787"
+
+  # Media Request Management
+  overseerr:
+    image: sctx/overseerr:latest
+    container_name: overseerr
+    <<: *common-variables
+    <<: *restart-policy
+    environment:
+      - TZ=${TZ:-UTC}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+    volumes:
+      - ${CONFIG_PATH}/overseerr:/app/config
+    <<: *network
+    ports:
+      - "5055:5055"
+
+  # ================================
+  # DOWNLOAD & PROCESSING
+  # ================================
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    <<: *common-variables
+    <<: *restart-policy
+    environment:
+      - TZ=${TZ:-UTC}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - UMASK_SET=${UMASK:-002}
+      - WEBUI_PORT=${QBITTORRENT_WEBUI_PORT:-8080}
+    volumes:
+      - ${CONFIG_PATH}/qbittorrent:/config
+      - ${DOWNLOADS_PATH}:/downloads
+    <<: *network
+    ports:
+      - "${QBITTORRENT_WEBUI_PORT:-8080}:${QBITTORRENT_WEBUI_PORT:-8080}"
+
+  # Usenet Client
+  nzbget:
+    image: lscr.io/linuxserver/nzbget:latest
+    container_name: nzbget
+    <<: *common-variables
+    <<: *restart-policy
+    environment:
+      - TZ=${TZ:-UTC}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - UMASK_SET=${UMASK:-002}
+    volumes:
+      - ${CONFIG_PATH}/nzbget:/config
+      - ${DOWNLOADS_PATH}:/downloads
+    <<: *network
+    ports:
+      - "6789:6789"
+
+  # Tdarr Server
+  tdarr:
+    image: ghcr.io/haveagitgat/tdarr:latest
+    container_name: tdarr
+    <<: *restart-policy
+    environment:
+      - TZ=${TZ:-UTC}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - UMASK_SET=${UMASK:-002}
+      - serverIP=${TDARR_SERVER_IP:-0.0.0.0}
+      - serverPort=${TDARR_SERVER_PORT:-8265}
+      - webUIPort=${TDARR_WEBUI_PORT:-8266}
+      - internalNode=true
+      - inContainer=true
+      - ffmpegVersion=${TDARR_FFMPEG_VERSION:-7}
+      - nodeName=${TDARR_NODE_NAME:-TdarrMainNode}
+    volumes:
+      - ${CONFIG_PATH}/tdarr/server:/app/server
+      - ${CONFIG_PATH}/tdarr/configs:/app/configs
+      - ${CONFIG_PATH}/tdarr/logs:/app/logs
+      - ${MEDIA_PATH}:/media
+      - ${TDARR_TRANSCODE}:/temp
+      - ${TEMP_PATH}/tdarr:/tmp
+    devices: []
+    group_add: []
+    <<: *network
+    ports:
+      - "${TDARR_SERVER_PORT:-8265}:${TDARR_SERVER_PORT:-8265}"
+      - "${TDARR_WEBUI_PORT:-8266}:${TDARR_WEBUI_PORT:-8266}"
+
+  # ================================
+  # MONITORING & MANAGEMENT
+  # ================================
+
+  # Media Server Statistics
+  tautulli:
+    image: lscr.io/linuxserver/tautulli:latest
+    container_name: tautulli
+    <<: *arr-common
+    volumes:
+      - ${CONFIG_PATH}/tautulli:/config
+    ports:
+      - "8181:8181"
+
+  # Subtitle Management
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    <<: *arr-common
+    volumes:
+      - ${CONFIG_PATH}/bazarr:/config
+      - ${TV_PATH}:/tv
+      - ${MOVIES_PATH}:/movies
+    ports:
+      - "6767:6767"
+
+  # Dashboard
+  homarr:
+    image: ghcr.io/ajnart/homarr:latest
+    container_name: homarr
+    <<: *restart-policy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${CONFIG_PATH}/homarr/configs:/app/data/configs
+      - ${CONFIG_PATH}/homarr/icons:/app/public/icons
+      - ${CONFIG_PATH}/homarr/data:/data
+    <<: *network
+    ports:
+      - "7575:7575"
+
+  # Service Monitoring
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: uptime-kuma
+    <<: *restart-policy
+    volumes:
+      - ${CONFIG_PATH}/uptime-kuma:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    <<: *network
+    ports:
+      - "3001:3001"
+
+  # Cloudflare Bypass for Protected Indexers
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    <<: *restart-policy
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+    <<: *network
+    ports:
+      - "8191:8191"
+
+networks:
+  media-network:
+    driver: bridge
+    name: ${NETWORK_NAME:-media-network}
