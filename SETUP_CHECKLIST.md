@@ -24,6 +24,7 @@ _Last updated: July 2025_
   - [ ] Router admin access (for port forwarding)
   - [ ] Know your router IP (usually `192.168.1.1`)
   - [ ] Internet connection working
+  - [ ] Decide: Local only or Cloudflare remote access
 
 ### Accounts & Services
 - [ ] **Domain Name Purchased**
@@ -63,6 +64,8 @@ _Last updated: July 2025_
 ---
 
 ## 🌐 STEP 2: CLOUDFLARE SETUP
+
+*Skip this entire step if you selected **Local Only** during the installer.*
 
 ### Get API Token
 - [ ] **Login to Cloudflare**: [dash.cloudflare.com](https://dash.cloudflare.com)

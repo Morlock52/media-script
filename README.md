@@ -55,7 +55,7 @@ This stack includes many services, but here are some of the stars of the show:
     ```
 
 2.  **Run the Interactive Setup (Recommended for New Installs):
-    This wizard will guide you through the entire configuration process, including directory setup, permissions, and environment configuration.
+    This wizard will guide you through the entire configuration process, including directory setup, permissions, and environment configuration. The very first prompt lets you choose **Local Only** or **Cloudflare Remote** access.
     ```bash
     ./interactive-setup.sh
     ```
