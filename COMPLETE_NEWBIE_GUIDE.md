@@ -626,3 +626,10 @@ You now have a complete, professional media server that:
 **Time Investment**: 4-6 hours initial setup, then 30 minutes/month maintenance  
 **Cost**: $10-15/year domain + hardware (one-time)  
 **Benefit**: Unlimited movies/TV shows for the whole family! 🚀
+## Recommended Add-on Apps
+
+- **Photoprism:** Self-hosted photo management and backup.
+- **Audiobookshelf:** Organize and stream audiobooks.
+- **Calibre Web:** Manage and read eBooks in your browser.
+- **Podgrab:** Automatically download podcast episodes.
+- **YTDL-Material:** Save online videos directly to your library.

@@ -143,3 +143,11 @@ Contributions are welcome! Whether it's improving documentation, fixing bugs, or
 ---
 
 Happy self-hosting!
+
+## Recommended Add-on Apps
+
+- **Photoprism:** Self-hosted photo management and backup.
+- **Audiobookshelf:** Organize and stream audiobooks.
+- **Calibre Web:** Manage and read eBooks in your browser.
+- **Podgrab:** Automatically download podcast episodes.
+- **YTDL-Material:** Save online videos directly to your library.

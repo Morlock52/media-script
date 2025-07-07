@@ -300,3 +300,10 @@ docker-compose logs -f [service-name]
 - qBittorrent: `https://qbittorrent.yourdomain.com`
 - HandBrake: `https://handbrake.yourdomain.com`
 - MKVToolNix: `https://mkvtoolnix.yourdomain.com`
+## Recommended Add-on Apps
+
+- **Photoprism:** Self-hosted photo management and backup.
+- **Audiobookshelf:** Organize and stream audiobooks.
+- **Calibre Web:** Manage and read eBooks in your browser.
+- **Podgrab:** Automatically download podcast episodes.
+- **YTDL-Material:** Save online videos directly to your library.
