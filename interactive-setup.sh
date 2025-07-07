@@ -389,6 +389,25 @@ validate_api_key() {
     fi
 }
 
+# Detect public IP using multiple services with short timeouts
+detect_public_ip() {
+    local providers=(
+        "https://ifconfig.me"
+        "https://api.ipify.org"
+        "https://ipinfo.io/ip"
+    )
+
+    for url in "${providers[@]}"; do
+        ip=$(curl -fsSL --connect-timeout 3 "$url" 2>/dev/null)
+        if [[ $ip =~ ^[0-9]+(\.[0-9]+){3}$ ]]; then
+            echo "$ip"
+            return 0
+        fi
+    done
+
+    echo "Unable to detect"
+}
+
 # ============================================================================
 # SETUP STEPS
 # ============================================================================
@@ -1128,8 +1147,8 @@ step_dns_configuration() {
     echo
     
     # Get public IP
-    echo -e "${COLORS[BLUE]}${SYMBOLS[INFO]} Getting your public IP address...${COLORS[RESET]}"
-    public_ip=$(curl -s ifconfig.me 2>/dev/null || curl -s ipinfo.io/ip 2>/dev/null || echo "Unable to detect")
+    echo -e "${COLORS[BLUE]}${SYMBOLS[INFO]} Detecting your public IP address...${COLORS[RESET]}"
+    public_ip=$(detect_public_ip)
     
     if [ "$public_ip" = "Unable to detect" ]; then
         warning_message "Could not automatically detect your public IP"
