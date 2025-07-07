@@ -436,3 +436,10 @@ curl -I https://dashboard.yourdomain.com
 8. **Firewall blocking** → Allow ports 80/443 in firewall
 
 **Remember**: 95% of issues are configuration, not bugs. Double-check your settings! 🔍
+## Recommended Add-on Apps
+
+- **Photoprism:** Self-hosted photo management and backup.
+- **Audiobookshelf:** Organize and stream audiobooks.
+- **Calibre Web:** Manage and read eBooks in your browser.
+- **Podgrab:** Automatically download podcast episodes.
+- **YTDL-Material:** Save online videos directly to your library.

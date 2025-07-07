@@ -114,3 +114,10 @@ Replace `yourdomain.com` with your actual domain:
 
 **Need detailed help?** See `COMPLETE_NEWBIE_GUIDE.md`  
 **Having issues?** See `TROUBLESHOOTING_FLOWCHART.md`
+## Recommended Add-on Apps
+
+- **Photoprism:** Self-hosted photo management and backup.
+- **Audiobookshelf:** Organize and stream audiobooks.
+- **Calibre Web:** Manage and read eBooks in your browser.
+- **Podgrab:** Automatically download podcast episodes.
+- **YTDL-Material:** Save online videos directly to your library.
