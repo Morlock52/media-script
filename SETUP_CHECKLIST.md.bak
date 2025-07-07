@@ -1,6 +1,6 @@
 # ✅ Media Stack Setup Checklist
 
-_Last updated: June 2025_
+_Last updated: July 2025_
 
 *Print this checklist and check off each step as you complete it*
 

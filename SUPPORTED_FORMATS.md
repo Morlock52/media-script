@@ -1,5 +1,5 @@
 # Comprehensive Media Format Support Guide
-_Last updated: June 2025_
+_Last updated: July 2025_
 
 This media stack supports virtually all modern and legacy media formats through Jellyfin's enhanced FFmpeg integration and additional processing tools.
 

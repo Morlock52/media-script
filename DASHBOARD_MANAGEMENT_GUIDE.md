@@ -1,6 +1,6 @@
 # Dashboard Management Guide
 
-_Last updated: June 2025_
+_Last updated: July 2025_
 
 This guide covers the comprehensive dashboard setup for managing your media stack with modern web interfaces and monitoring capabilities.
 

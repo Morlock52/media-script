@@ -1,6 +1,6 @@
 # Media Stack Setup Guide
 
-_Last updated: June 2025_
+_Last updated: July 2025_
 
 This Docker Compose setup provides a complete media server stack with Jellyfin and the Arr suite, using Caddy for reverse proxy with Cloudflare SSL.
 

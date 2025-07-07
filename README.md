@@ -151,3 +151,6 @@ Happy self-hosting!
 - **Calibre Web:** Manage and read eBooks in your browser.
 - **Podgrab:** Automatically download podcast episodes.
 - **YTDL-Material:** Save online videos directly to your library.
+
+### July 2025 Update
+Homarr continues to be one of the top dashboards for self-hosted environments. The [Awesome Selfhosted](https://awesome-selfhosted.net) list highlights **Homarr** alongside **Dashy** and other options.

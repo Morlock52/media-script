@@ -1,6 +1,6 @@
 # 🚀 Quick Start Card - Media Stack Setup
 
-_Last updated: June 2025_
+_Last updated: July 2025_
 
 *Print this card and keep it handy during setup!*
 
