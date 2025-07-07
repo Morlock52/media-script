@@ -1,6 +1,6 @@
 # Complete Newbie Setup Guide
 
-_Last updated: June 2025_
+_Last updated: July 2025_
 
 This guide will walk you through setting up a complete media server stack from scratch. No prior experience required!
 

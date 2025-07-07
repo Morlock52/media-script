@@ -1,6 +1,6 @@
 # Environment Management Guide
 
-_Last updated: June 2025_
+_Last updated: July 2025_
 
 This guide explains the optimized environment variable system that reduces duplication and simplifies maintenance of your media stack.
 

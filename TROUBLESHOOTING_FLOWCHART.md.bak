@@ -1,6 +1,6 @@
 # 🔧 Troubleshooting Flowchart
 
-_Last updated: June 2025_
+_Last updated: July 2025_
 
 *Follow this flowchart to solve 90% of issues quickly*
 
