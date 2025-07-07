@@ -90,17 +90,18 @@ Replace `yourdomain.com` with your actual domain:
 ## 🎯 Setup Order (DO IN THIS ORDER!)
 
 1. **Install Docker** → Test with `docker run hello-world`
-2. **Get Domain** → Buy and add to Cloudflare  
-3. **Get API Token** → From Cloudflare dashboard
-4. **Prepare Storage** → Create directories or mount external drive
-5. **Run Setup** → `./scripts/env-manager.sh init`
-6. **Deploy Stack** → `./deploy.sh deploy`
-7. **Configure DNS** → Add A records in Cloudflare
-8. **Port Forward** → Router: ports 80 and 443 to your PC
-9. **Configure Prowlarr** → Add indexers FIRST
-10. **Configure Others** → Sonarr, Radarr, qBittorrent
-11. **Add API Keys** → `./scripts/env-manager.sh setup-api-keys`
-12. **Test Everything** → Request a movie in Overseerr
+2. **Decide Access Mode** → Local only or Cloudflare remote (first setup prompt)
+3. **Get Domain** → Buy and add to Cloudflare
+4. **Get API Token** → From Cloudflare dashboard
+5. **Prepare Storage** → Create directories or mount external drive
+6. **Run Setup** → `./scripts/env-manager.sh init`
+7. **Deploy Stack** → `./deploy.sh deploy`
+8. **Configure DNS** → Add A records in Cloudflare
+9. **Port Forward** → Router: ports 80 and 443 to your PC
+10. **Configure Prowlarr** → Add indexers FIRST
+11. **Configure Others** → Sonarr, Radarr, qBittorrent
+12. **Add API Keys** → `./scripts/env-manager.sh setup-api-keys`
+13. **Test Everything** → Request a movie in Overseerr
 
 ## 💡 Pro Tips
 
