@@ -95,6 +95,7 @@ Replace `yourdomain.com` with your actual domain:
 4. **Get API Token** → From Cloudflare dashboard
 5. **Prepare Storage** → Create directories or mount external drive
 6. **Run Setup** → `./scripts/env-manager.sh init`
+   -or- copy `.env.example` to `.env` and edit manually
 7. **Deploy Stack** → `./deploy.sh deploy`
 8. **Configure DNS** → Add A records in Cloudflare
 9. **Port Forward** → Router: ports 80 and 443 to your PC

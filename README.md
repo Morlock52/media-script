@@ -73,6 +73,12 @@ This stack includes many services, but here are some of the stars of the show:
         ```bash
         ./scripts/env-manager.sh init
         ```
+    *   **Manual Configuration:**
+        Copy the provided example file and edit it to suit your environment.
+        ```bash
+        cp .env.example .env
+        nano .env
+        ```
 
 ## Deployment & Management
 

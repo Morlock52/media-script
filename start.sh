@@ -8,9 +8,15 @@ echo "🚀 Starting Media Stack..."
 
 # Check if .env exists
 if [ ! -f .env ]; then
-    echo "❌ .env file not found! Please copy .env.example to .env and configure it first."
-    echo "   cp .env.example .env"
-    echo "   nano .env"
+    echo "❌ .env file not found!"
+    if [ -f .env.example ]; then
+        echo "Copy the example file and edit it to continue:"
+        echo "   cp .env.example .env"
+        echo "   nano .env"
+    else
+        echo "Run the setup wizard to generate one:"
+        echo "   ./scripts/env-manager.sh init"
+    fi
     exit 1
 fi
 
