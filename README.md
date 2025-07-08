@@ -40,7 +40,7 @@ This stack includes many services, but here are some of the stars of the show:
 
 ## Prerequisites
 
-*   **Docker and Docker Compose:** Essential for running the containerized services. Ensure they are installed and running on your system.
+*   **Docker and Docker Compose v2:** Essential for running the containerized services. Make sure the `docker` command and the `docker compose` plugin are available.
 *   **Sufficient Disk Space:** Your media library can grow large! Plan accordingly.
 *   **Operating System:** Linux-based OS recommended (scripts are Bash).
 *   **(Optional but Recommended)** Basic familiarity with the command line.
@@ -76,6 +76,12 @@ This stack includes many services, but here are some of the stars of the show:
         This command uses `.env.example` to create your `.env` file. You can also copy it manually:
         ```bash
         cp .env.example .env
+        ```
+
+        After editing the `.env` file, validate your settings and confirm Docker is installed:
+        ```bash
+        ./scripts/env-manager.sh validate
+        ./deploy.sh status
         ```
 
 ## Deployment & Management
@@ -115,6 +121,12 @@ Once the initial setup and configuration are complete, you can deploy and manage
 
 *   **Updating Services:**
     (Refer to project-specific documentation or `./deploy.sh help` if available for update procedures. Typically involves pulling new Docker images and redeploying.)
+
+*   **Check Status or Logs:**
+    ```bash
+    ./deploy.sh status            # Show running containers
+    ./deploy.sh logs jellyfin     # Tail logs for a service
+    ```
 
 ## Accessing Your Media Empire
 
