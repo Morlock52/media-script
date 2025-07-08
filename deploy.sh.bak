@@ -50,7 +50,12 @@ check_environment() {
     set +a
     
     # Check for basic configuration
-    if [[ "$DOMAIN" == *"yourdomain"* ]] || [[ "$CLOUDFLARE_API_TOKEN" == *"your-"* ]]; then
+    local needs_cf_token=true
+    if [[ "$ACCESS_MODE" == "local" ]]; then
+        needs_cf_token=false
+    fi
+
+    if [[ "$DOMAIN" == *"yourdomain"* ]] || { [[ "$needs_cf_token" = true ]] && [[ "$CLOUDFLARE_API_TOKEN" == *"your-"* ]]; }; then
         error "Environment not properly configured"
         info "Run: ./scripts/env-manager.sh init"
         exit 1
@@ -176,7 +181,7 @@ create_directories() {
             "$BOOKS_PATH"
             "$ANIME_PATH"
             "$DOCUMENTARIES_PATH"
-            "$4K_PATH"
+            "$MEDIA_4K_PATH"
         )
     fi
     

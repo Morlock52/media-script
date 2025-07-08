@@ -73,6 +73,10 @@ This stack includes many services, but here are some of the stars of the show:
         ```bash
         ./scripts/env-manager.sh init
         ```
+        This command uses `.env.example` to create your `.env` file. You can also copy it manually:
+        ```bash
+        cp .env.example .env
+        ```
 
 ## Deployment & Management
 
@@ -89,6 +93,7 @@ Once the initial setup and configuration are complete, you can deploy and manage
     ```bash
     ./deploy.sh deploy --local
     ```
+    When using this mode, Cloudflare credentials in `.env` can remain empty.
 
 *   **Deploy with GPU Acceleration (NVIDIA Example):
     Leverage your NVIDIA GPU for hardware-accelerated transcoding in services like Jellyfin and Tdarr.

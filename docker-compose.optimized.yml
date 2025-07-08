@@ -65,7 +65,7 @@ services:
       - ${BOOKS_PATH}:/data/books:ro
       - ${ANIME_PATH}:/data/anime:ro
       - ${DOCUMENTARIES_PATH}:/data/documentaries:ro
-      - ${4K_PATH}:/data/4k:ro
+      - ${MEDIA_4K_PATH}:/data/4k:ro
       - ${JELLYFIN_TRANSCODE}:/tmp/jellyfin-transcode
     # Conditional GPU devices
     devices: []
