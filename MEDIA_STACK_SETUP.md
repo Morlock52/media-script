@@ -1,6 +1,6 @@
 # Media Stack Setup Guide
 
-_Last updated: June 2025_
+_Last updated: July 2025_
 
 This Docker Compose setup provides a complete media server stack with Jellyfin and the Arr suite, using Caddy for reverse proxy with Cloudflare SSL.
 
@@ -28,8 +28,8 @@ This Docker Compose setup provides a complete media server stack with Jellyfin a
 ## Prerequisites
 
 1. **Docker and Docker Compose** installed
-2. **Cloudflare account** with domain managed by Cloudflare
-3. **Cloudflare API token** with Zone:Read and Zone:Zone permissions
+2. **Cloudflare account** with domain managed by Cloudflare *(only for external access)*
+3. **Cloudflare API token** with Zone:Read and Zone:Zone permissions *(only for external access)*
 4. **Directory structure** for media storage
 
 ## Setup Instructions
@@ -300,3 +300,10 @@ docker-compose logs -f [service-name]
 - qBittorrent: `https://qbittorrent.yourdomain.com`
 - HandBrake: `https://handbrake.yourdomain.com`
 - MKVToolNix: `https://mkvtoolnix.yourdomain.com`
+## Recommended Add-on Apps
+
+- **Photoprism:** Self-hosted photo management and backup.
+- **Audiobookshelf:** Organize and stream audiobooks.
+- **Calibre Web:** Manage and read eBooks in your browser.
+- **Podgrab:** Automatically download podcast episodes.
+- **YTDL-Material:** Save online videos directly to your library.

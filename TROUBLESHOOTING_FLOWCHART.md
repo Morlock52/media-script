@@ -1,6 +1,6 @@
 # 🔧 Troubleshooting Flowchart
 
-_Last updated: June 2025_
+_Last updated: July 2025_
 
 *Follow this flowchart to solve 90% of issues quickly*
 
@@ -45,7 +45,9 @@ nslookup dashboard.yourdomain.com
 ### Check 2: Port Forwarding
 ```bash
 # Find your public IP
-curl ifconfig.me
+curl -fsSL https://ifconfig.me
+# or
+curl -fsSL https://api.ipify.org
 
 # Test if ports are open (from external network)
 # Use https://www.yougetsignal.com/tools/open-ports/
@@ -436,3 +438,10 @@ curl -I https://dashboard.yourdomain.com
 8. **Firewall blocking** → Allow ports 80/443 in firewall
 
 **Remember**: 95% of issues are configuration, not bugs. Double-check your settings! 🔍
+## Recommended Add-on Apps
+
+- **Photoprism:** Self-hosted photo management and backup.
+- **Audiobookshelf:** Organize and stream audiobooks.
+- **Calibre Web:** Manage and read eBooks in your browser.
+- **Podgrab:** Automatically download podcast episodes.
+- **YTDL-Material:** Save online videos directly to your library.

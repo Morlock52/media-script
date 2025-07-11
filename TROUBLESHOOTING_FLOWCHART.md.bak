@@ -1,6 +1,6 @@
 # 🔧 Troubleshooting Flowchart
 
-_Last updated: June 2025_
+_Last updated: July 2025_
 
 *Follow this flowchart to solve 90% of issues quickly*
 
@@ -45,7 +45,9 @@ nslookup dashboard.yourdomain.com
 ### Check 2: Port Forwarding
 ```bash
 # Find your public IP
-curl ifconfig.me
+curl -fsSL https://ifconfig.me
+# or
+curl -fsSL https://api.ipify.org
 
 # Test if ports are open (from external network)
 # Use https://www.yougetsignal.com/tools/open-ports/

@@ -1,6 +1,6 @@
 # 🎯 What You Get - Media Stack Comparison
 
-_Last updated: June 2025_
+_Last updated: July 2025_
 
 *Understand exactly what you're building and how it compares to commercial services*
 
@@ -226,3 +226,10 @@ Setting up your media stack teaches you:
 ---
 
 **Bottom Line**: For the cost of 1-2 months of Netflix, you can build a media system that rivals professional streaming services and saves thousands of dollars per year! 🎬💰
+## Recommended Add-on Apps
+
+- **Photoprism:** Self-hosted photo management and backup.
+- **Audiobookshelf:** Organize and stream audiobooks.
+- **Calibre Web:** Manage and read eBooks in your browser.
+- **Podgrab:** Automatically download podcast episodes.
+- **YTDL-Material:** Save online videos directly to your library.

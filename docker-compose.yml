@@ -234,7 +234,7 @@ services:
 
   # Reverse Proxy with SSL
   caddy:
-    image: caddy:latest
+    image: lucaslorentz/caddy-docker-proxy:2.10-alpine
     container_name: caddy
     restart: unless-stopped
     cap_add:
@@ -247,9 +247,11 @@ services:
       - ./config/caddy/Caddyfile:/etc/caddy/Caddyfile
       - ./config/caddy/data:/data
       - ./config/caddy/config:/config
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - media-network
     environment:
+      - CADDY_INGRESS_NETWORKS=media-network
       - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL}
       - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
       - DOMAIN=${DOMAIN}

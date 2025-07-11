@@ -40,11 +40,11 @@ This stack includes many services, but here are some of the stars of the show:
 
 ## Prerequisites
 
-*   **Docker and Docker Compose:** Essential for running the containerized services. Ensure they are installed and running on your system.
+*   **Docker and Docker Compose v2:** Essential for running the containerized services. Make sure the `docker` command and the `docker compose` plugin are available.
 *   **Sufficient Disk Space:** Your media library can grow large! Plan accordingly.
 *   **Operating System:** Linux-based OS recommended (scripts are Bash).
 *   **(Optional but Recommended)** Basic familiarity with the command line.
-*   **(For Remote Access)** A domain name you own and a Cloudflare account (for SSL and DNS management).
+*   **(For Remote Access)** A domain name you own and a Cloudflare account (for SSL and DNS management). Skip if you choose local-only access.
 
 ## Getting Started
 
@@ -55,7 +55,7 @@ This stack includes many services, but here are some of the stars of the show:
     ```
 
 2.  **Run the Interactive Setup (Recommended for New Installs):
-    This wizard will guide you through the entire configuration process, including directory setup, permissions, and environment configuration.
+    This wizard will guide you through the entire configuration process, including directory setup, permissions, and environment configuration. The very first prompt lets you choose **Local Only** or **Cloudflare Remote** access.
     ```bash
     ./interactive-setup.sh
     ```
@@ -73,6 +73,16 @@ This stack includes many services, but here are some of the stars of the show:
         ```bash
         ./scripts/env-manager.sh init
         ```
+        This command uses `.env.example` to create your `.env` file. You can also copy it manually:
+        ```bash
+        cp .env.example .env
+        ```
+
+        After editing the `.env` file, validate your settings and confirm Docker is installed:
+        ```bash
+        ./scripts/env-manager.sh validate
+        ./deploy.sh status
+        ```
 
 ## Deployment & Management
 
@@ -89,6 +99,7 @@ Once the initial setup and configuration are complete, you can deploy and manage
     ```bash
     ./deploy.sh deploy --local
     ```
+    When using this mode, Cloudflare credentials in `.env` can remain empty.
 
 *   **Deploy with GPU Acceleration (NVIDIA Example):
     Leverage your NVIDIA GPU for hardware-accelerated transcoding in services like Jellyfin and Tdarr.
@@ -110,6 +121,20 @@ Once the initial setup and configuration are complete, you can deploy and manage
 
 *   **Updating Services:**
     (Refer to project-specific documentation or `./deploy.sh help` if available for update procedures. Typically involves pulling new Docker images and redeploying.)
+
+*   **Check Status or Logs:**
+    ```bash
+    ./deploy.sh status            # Show running containers
+    ./deploy.sh logs jellyfin     # Tail logs for a service
+    ```
+
+## Reverse Proxy with Caddy
+
+This stack now ships with [Caddy](https://caddyserver.com) acting as a dynamic
+reverse proxy for all services. It uses the `lucaslorentz/caddy-docker-proxy`
+image, which reads Docker labels from the compose file to generate configuration
+automatically. Provide your Cloudflare credentials in `.env` and Caddy will
+obtain HTTPS certificates for your subdomains without manual setup.
 
 ## Accessing Your Media Empire
 
@@ -143,3 +168,14 @@ Contributions are welcome! Whether it's improving documentation, fixing bugs, or
 ---
 
 Happy self-hosting!
+
+## Recommended Add-on Apps
+
+- **Photoprism:** Self-hosted photo management and backup.
+- **Audiobookshelf:** Organize and stream audiobooks.
+- **Calibre Web:** Manage and read eBooks in your browser.
+- **Podgrab:** Automatically download podcast episodes.
+- **YTDL-Material:** Save online videos directly to your library.
+
+### July 2025 Update
+Homarr continues to be one of the top dashboards for self-hosted environments. The [Awesome Selfhosted](https://awesome-selfhosted.net) list highlights **Homarr** alongside **Dashy** and other options.

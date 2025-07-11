@@ -38,6 +38,18 @@ success() {
 
 # Check if .env file exists and is configured
 check_environment() {
+    # Ensure Docker is installed
+    if ! command -v docker >/dev/null 2>&1; then
+        error "Docker is not installed or not in PATH"
+        info "Install Docker and Docker Compose v2 before continuing"
+        exit 1
+    fi
+    if ! docker compose version >/dev/null 2>&1; then
+        error "Docker Compose plugin not found"
+        info "Upgrade to Docker Compose v2 (use 'docker compose')"
+        exit 1
+    fi
+
     if [ ! -f "$PROJECT_ROOT/.env" ]; then
         error ".env file not found"
         info "Run: ./scripts/env-manager.sh init"
@@ -247,7 +259,7 @@ create_directories() {
             "$BOOKS_PATH"
             "$ANIME_PATH"
             "$DOCUMENTARIES_PATH"
-            "$4K_PATH"
+            "$MEDIA_4K_PATH"
         )
     fi
     

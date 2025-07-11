@@ -1,6 +1,6 @@
 # ✅ Media Stack Setup Checklist
 
-_Last updated: June 2025_
+_Last updated: July 2025_
 
 *Print this checklist and check off each step as you complete it*
 
@@ -21,17 +21,18 @@ _Last updated: June 2025_
   - [ ] Drive formatted (NTFS/ext4/APFS)
 
 - [ ] **Network Access**
-  - [ ] Router admin access (for port forwarding)
+  - [ ] Router admin access (for port forwarding, only if using external access)
   - [ ] Know your router IP (usually `192.168.1.1`)
   - [ ] Internet connection working
+  - [ ] Decide: Local only or Cloudflare remote access
 
 ### Accounts & Services
-- [ ] **Domain Name Purchased**
+- [ ] **Domain Name Purchased** *(only for external access)*
   - [ ] From Namecheap, Cloudflare, or other registrar
   - [ ] Example: `media-yourname.com`
   - [ ] Cost: ~$10-15/year
 
-- [ ] **Cloudflare Account Created**
+- [ ] **Cloudflare Account Created** *(only for external access)*
   - [ ] Free account at [cloudflare.com](https://cloudflare.com)
   - [ ] Domain added to Cloudflare
   - [ ] Nameservers changed (may take 24 hours)
@@ -63,6 +64,8 @@ _Last updated: June 2025_
 ---
 
 ## 🌐 STEP 2: CLOUDFLARE SETUP
+
+*Skip this entire step if you selected **Local Only** during the installer.*
 
 ### Get API Token
 - [ ] **Login to Cloudflare**: [dash.cloudflare.com](https://dash.cloudflare.com)
@@ -144,8 +147,8 @@ _Last updated: June 2025_
   - [ ] **Domain**: Enter your domain (e.g., `media.yourname.com`)
   - [ ] **Timezone**: Your timezone (e.g., `America/New_York`)
   - [ ] **User IDs**: Accept auto-detected values
-  - [ ] **Cloudflare Email**: Your Cloudflare account email
-  - [ ] **API Token**: Paste your Cloudflare API token
+  - [ ] **Cloudflare Email**: Your Cloudflare account email *(external access only)*
+  - [ ] **API Token**: Paste your Cloudflare API token *(external access only)*
 
 ### Customize Paths (If Using External Drive)
 - [ ] **Edit Configuration**: `nano .env`
@@ -406,3 +409,10 @@ _Last updated: June 2025_
 
 *Estimated Setup Time: 4-6 hours for complete newbie*  
 *Estimated Monthly Maintenance: 30 minutes*
+## Recommended Add-on Apps
+
+- **Photoprism:** Self-hosted photo management and backup.
+- **Audiobookshelf:** Organize and stream audiobooks.
+- **Calibre Web:** Manage and read eBooks in your browser.
+- **Podgrab:** Automatically download podcast episodes.
+- **YTDL-Material:** Save online videos directly to your library.

@@ -1,0 +1,4 @@
+.env
+
+# interactive setup artifacts
+.setup_progress

@@ -1,6 +1,6 @@
 # Complete Newbie Setup Guide
 
-_Last updated: June 2025_
+_Last updated: July 2025_
 
 This guide will walk you through setting up a complete media server stack from scratch. No prior experience required!
 
@@ -18,8 +18,8 @@ By the end of this guide, you'll have:
 
 ### What You Need
 1. **A Computer/Server** running Linux, Windows, or macOS
-2. **A Domain Name** (e.g., `media.example.com`) - $10-15/year
-3. **Cloudflare Account** (free) - for SSL certificates
+2. **A Domain Name** (e.g., `media.example.com`) - $10-15/year *(only for external access)*
+3. **Cloudflare Account** (free) - for SSL certificates *(only for external access)*
 4. **Basic Storage** - External drive or NAS for your media
 5. **Internet Connection** - For downloading content and remote access
 
@@ -90,7 +90,7 @@ docker run hello-world
 
 You should see: `Hello from Docker!`
 
-## 🌐 Step 2: Domain and DNS Setup
+## 🌐 Step 2: Domain and DNS Setup *(skip if using local-only access)*
 
 ### Get a Domain Name
 1. Go to [Namecheap](https://namecheap.com) or [Cloudflare](https://cloudflare.com)
@@ -626,3 +626,10 @@ You now have a complete, professional media server that:
 **Time Investment**: 4-6 hours initial setup, then 30 minutes/month maintenance  
 **Cost**: $10-15/year domain + hardware (one-time)  
 **Benefit**: Unlimited movies/TV shows for the whole family! 🚀
+## Recommended Add-on Apps
+
+- **Photoprism:** Self-hosted photo management and backup.
+- **Audiobookshelf:** Organize and stream audiobooks.
+- **Calibre Web:** Manage and read eBooks in your browser.
+- **Podgrab:** Automatically download podcast episodes.
+- **YTDL-Material:** Save online videos directly to your library.

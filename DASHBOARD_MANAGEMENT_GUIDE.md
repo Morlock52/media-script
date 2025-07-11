@@ -1,6 +1,6 @@
 # Dashboard Management Guide
 
-_Last updated: June 2025_
+_Last updated: July 2025_
 
 This guide covers the comprehensive dashboard setup for managing your media stack with modern web interfaces and monitoring capabilities.
 
@@ -269,3 +269,10 @@ docker-compose logs caddy
 5. **Backup Configuration**: Regular config exports
 
 This comprehensive dashboard setup provides a professional interface for managing your entire media stack with real-time monitoring, intuitive controls, and extensive customization options.
+## Recommended Add-on Apps
+
+- **Photoprism:** Self-hosted photo management and backup.
+- **Audiobookshelf:** Organize and stream audiobooks.
+- **Calibre Web:** Manage and read eBooks in your browser.
+- **Podgrab:** Automatically download podcast episodes.
+- **YTDL-Material:** Save online videos directly to your library.

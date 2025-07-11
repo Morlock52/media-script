@@ -1,6 +1,6 @@
 # Environment Management Guide
 
-_Last updated: June 2025_
+_Last updated: July 2025_
 
 This guide explains the optimized environment variable system that reduces duplication and simplifies maintenance of your media stack.
 
@@ -367,3 +367,10 @@ BASIC_AUTH_PASS=secure-password
 - **Quarterly**: Review and update `.env` configuration
 
 This optimized environment system provides a robust, maintainable foundation for your media stack that grows with your needs while minimizing configuration complexity.
+## Recommended Add-on Apps
+
+- **Photoprism:** Self-hosted photo management and backup.
+- **Audiobookshelf:** Organize and stream audiobooks.
+- **Calibre Web:** Manage and read eBooks in your browser.
+- **Podgrab:** Automatically download podcast episodes.
+- **YTDL-Material:** Save online videos directly to your library.

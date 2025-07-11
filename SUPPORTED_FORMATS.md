@@ -1,5 +1,5 @@
 # Comprehensive Media Format Support Guide
-_Last updated: June 2025_
+_Last updated: July 2025_
 
 This media stack supports virtually all modern and legacy media formats through Jellyfin's enhanced FFmpeg integration and additional processing tools.
 
@@ -293,3 +293,10 @@ This media stack supports virtually all modern and legacy media formats through 
 - **Settings**: Optimize client playback settings
 
 This comprehensive format support ensures your media stack can handle any content you throw at it, from legacy formats to cutting-edge codecs, with optimal performance and compatibility across all your devices.
+## Recommended Add-on Apps
+
+- **Photoprism:** Self-hosted photo management and backup.
+- **Audiobookshelf:** Organize and stream audiobooks.
+- **Calibre Web:** Manage and read eBooks in your browser.
+- **Podgrab:** Automatically download podcast episodes.
+- **YTDL-Material:** Save online videos directly to your library.

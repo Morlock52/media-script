@@ -348,3 +348,10 @@ For a typical 10TB library:
 4. **Hardware optimization**: Upgrade for better performance
 
 This comprehensive setup will automatically optimize your media library, significantly reducing storage requirements while maintaining excellent quality across all your content.
+## Recommended Add-on Apps
+
+- **Photoprism:** Self-hosted photo management and backup.
+- **Audiobookshelf:** Organize and stream audiobooks.
+- **Calibre Web:** Manage and read eBooks in your browser.
+- **Podgrab:** Automatically download podcast episodes.
+- **YTDL-Material:** Save online videos directly to your library.
