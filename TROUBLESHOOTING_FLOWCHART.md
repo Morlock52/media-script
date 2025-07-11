@@ -18,13 +18,14 @@ _Last updated: July 2025_
    └─ NO → Go to "CAN'T ACCESS ANYTHING" section
 ```
 
----
+______________________________________________________________________
 
 ## 🌐 CAN'T ACCESS ANYTHING
 
 **Symptoms**: Can't reach any services, browser shows "site can't be reached"
 
 ### Check 1: DNS Records
+
 ```bash
 # Test if DNS is working
 nslookup dashboard.yourdomain.com
@@ -34,15 +35,17 @@ nslookup dashboard.yourdomain.com
 ```
 
 **Fix DNS**:
+
 1. Go to Cloudflare Dashboard
-2. Click "DNS" 
-3. Verify A records exist for:
+1. Click "DNS"
+1. Verify A records exist for:
    - `dashboard.yourdomain.com` → Your public IP
    - `jellyfin.yourdomain.com` → Your public IP
    - etc.
-4. Wait 5 minutes and try again
+1. Wait 5 minutes and try again
 
 ### Check 2: Port Forwarding
+
 ```bash
 # Find your public IP
 curl -fsSL https://ifconfig.me
@@ -55,14 +58,16 @@ curl -fsSL https://api.ipify.org
 ```
 
 **Fix Port Forwarding**:
+
 1. Access your router (usually `192.168.1.1`)
-2. Find "Port Forwarding" or "NAT"
-3. Add rules:
+1. Find "Port Forwarding" or "NAT"
+1. Add rules:
    - Port 80 → Your computer's local IP
    - Port 443 → Your computer's local IP
-4. Save and restart router
+1. Save and restart router
 
 ### Check 3: Local Network
+
 ```bash
 # Find your local IP
 ip addr | grep "inet " | grep -v 127.0.0.1
@@ -74,17 +79,19 @@ curl -k https://localhost
 ```
 
 **Fix Local Network**:
-1. Ensure your computer has a static local IP
-2. Check firewall isn't blocking ports 80/443
-3. Test from another device on same network
 
----
+1. Ensure your computer has a static local IP
+1. Check firewall isn't blocking ports 80/443
+1. Test from another device on same network
+
+______________________________________________________________________
 
 ## ⚙️ SERVICES NOT WORKING
 
 **Symptoms**: Dashboard loads but some services are down
 
 ### Check Service Status
+
 ```bash
 # Check what's running
 ./deploy.sh status
@@ -96,9 +103,10 @@ curl -k https://localhost
 ```
 
 ### Fix Failed Services
+
 ```bash
 # Restart individual service
-docker-compose restart sonarr
+docker compose restart sonarr
 
 # Check logs for errors
 ./deploy.sh logs sonarr
@@ -109,14 +117,17 @@ docker-compose restart sonarr
 ### Common Service Issues
 
 #### Jellyfin Won't Start
+
 **Symptoms**: Jellyfin shows "Exit" status
 
 **Check**:
+
 ```bash
 ./deploy.sh logs jellyfin
 ```
 
 **Common Causes**:
+
 - **Permission Error**: `chown: cannot access '/config'`
   ```bash
   sudo chown -R 1000:1000 ./config/jellyfin
@@ -132,9 +143,11 @@ docker-compose restart sonarr
   ```
 
 #### Download Services Not Working
+
 **Symptoms**: Sonarr/Radarr can't connect to qBittorrent
 
 **Check**:
+
 ```bash
 # Test qBittorrent is accessible
 curl -I http://localhost:8080
@@ -144,17 +157,19 @@ curl -I http://localhost:8080
 ```
 
 **Fix**:
-1. Verify qBittorrent is running
-2. Check username/password in Sonarr/Radarr settings
-3. Use hostname `qbittorrent` not `localhost`
 
----
+1. Verify qBittorrent is running
+1. Check username/password in Sonarr/Radarr settings
+1. Use hostname `qbittorrent` not `localhost`
+
+______________________________________________________________________
 
 ## 📥 DOWNLOADS NOT WORKING
 
 **Symptoms**: Added movie/show but nothing downloads
 
 ### Check 1: Indexers (Most Common Issue)
+
 ```bash
 # Access Prowlarr
 https://prowlarr.yourdomain.com
@@ -164,41 +179,48 @@ https://prowlarr.yourdomain.com
 ```
 
 **Fix Indexers**:
-1. **Test Each Indexer**: Click test button
-2. **Remove Broken Ones**: Delete any with red X
-3. **Add Working Ones**: Add "1337x", "RARBG" for public
-4. **Configure Private**: If you have private tracker accounts
 
-### Check 2: Prowlarr → *arr Connection
+1. **Test Each Indexer**: Click test button
+1. **Remove Broken Ones**: Delete any with red X
+1. **Add Working Ones**: Add "1337x", "RARBG" for public
+1. **Configure Private**: If you have private tracker accounts
+
+### Check 2: Prowlarr → \*arr Connection
+
 ```bash
 # In Prowlarr, go to Settings → Apps
 # Should show Sonarr, Radarr with green checkmarks
 ```
 
 **Fix App Connections**:
+
 1. **Get API Keys**: From each service (Settings → General)
-2. **Add Apps in Prowlarr**: Use internal hostnames (`sonarr:8989`)
-3. **Sync Indexers**: Force sync to push indexers to apps
+1. **Add Apps in Prowlarr**: Use internal hostnames (`sonarr:8989`)
+1. **Sync Indexers**: Force sync to push indexers to apps
 
 ### Check 3: Quality Profiles
+
 ```bash
 # In Sonarr/Radarr, check Quality Profiles
 # Should have at least one profile enabled
 ```
 
 **Fix Quality**:
-1. **Edit Profile**: Allow multiple qualities
-2. **Set Minimum**: Don't set too high (starts with 720p)
-3. **Enable Upgrades**: Allow quality upgrades
 
----
+1. **Edit Profile**: Allow multiple qualities
+1. **Set Minimum**: Don't set too high (starts with 720p)
+1. **Enable Upgrades**: Allow quality upgrades
+
+______________________________________________________________________
 
 ## 🎬 JELLYFIN ISSUES
 
 ### Problem: No Content Shows Up
+
 **Symptoms**: Jellyfin interface loads but libraries are empty
 
 **Check**:
+
 ```bash
 # Verify files exist
 ls -la /media/movies/
@@ -208,44 +230,49 @@ docker exec jellyfin ls -la /data/movies/
 ```
 
 **Fix**:
+
 1. **File Naming**: Use proper naming conventions
    ```
    Good: /media/movies/Avatar (2009)/Avatar (2009).mkv
    Bad:  /media/movies/avatar_2009_rip.avi
    ```
-2. **Permissions**: Fix file permissions
+1. **Permissions**: Fix file permissions
    ```bash
    sudo chown -R 1000:1000 /media
    sudo chmod -R 755 /media
    ```
-3. **Force Scan**: Dashboard → Libraries → Scan All Libraries
+1. **Force Scan**: Dashboard → Libraries → Scan All Libraries
 
 ### Problem: Buffering/Stuttering
+
 **Symptoms**: Video starts but keeps pausing to buffer
 
 **Immediate Fix**:
+
 1. **Lower Quality**: In Jellyfin player, reduce quality to 720p
-2. **Enable Direct Play**: Turn off transcoding in settings
+1. **Enable Direct Play**: Turn off transcoding in settings
 
 **Permanent Fix**:
+
 1. **Enable GPU Transcoding**:
    ```bash
    ./scripts/env-manager.sh enable-gpu
    ./deploy.sh restart
    ```
-2. **Increase Resources**:
+1. **Increase Resources**:
    ```bash
    # Give Docker more RAM (Docker Desktop settings)
    # Recommended: 4GB minimum, 8GB preferred
    ```
 
----
+______________________________________________________________________
 
 ## 🔑 PERMISSION PROBLEMS
 
 **Symptoms**: "Permission denied" errors in logs
 
 ### Fix All Permissions
+
 ```bash
 # Fix config directory
 sudo chown -R 1000:1000 ./config
@@ -261,6 +288,7 @@ sudo usermod -aG docker $USER
 ```
 
 ### Check User IDs
+
 ```bash
 # Check your user ID
 id
@@ -269,12 +297,14 @@ id
 grep PUID .env
 ```
 
----
+______________________________________________________________________
 
 ## 💾 STORAGE ISSUES
 
 ### Problem: Running Out of Space
+
 **Check Space**:
+
 ```bash
 # Check disk usage
 df -h
@@ -284,19 +314,22 @@ docker system df
 ```
 
 **Fix**:
+
 1. **Enable Tdarr**: Automatic compression saves 40-60%
-2. **Clean Downloads**: 
+1. **Clean Downloads**:
    ```bash
    # Remove completed downloads
    rm -rf /downloads/complete/*
    ```
-3. **Docker Cleanup**:
+1. **Docker Cleanup**:
    ```bash
    docker system prune -a
    ```
 
 ### Problem: External Drive Not Working
+
 **Check Mount**:
+
 ```bash
 # List mounted drives
 mount | grep media
@@ -306,6 +339,7 @@ lsblk
 ```
 
 **Fix**:
+
 ```bash
 # Remount drive
 sudo umount /mnt/media-drive
@@ -315,12 +349,14 @@ sudo mount /dev/sdb1 /mnt/media-drive
 sudo nano /etc/fstab
 ```
 
----
+______________________________________________________________________
 
 ## 🌡️ PERFORMANCE ISSUES
 
 ### Problem: Everything is Slow
+
 **Check Resources**:
+
 ```bash
 # Check CPU/Memory usage
 htop
@@ -330,63 +366,67 @@ docker stats
 ```
 
 **Quick Fixes**:
+
 1. **Restart Everything**:
    ```bash
    ./deploy.sh stop
    ./deploy.sh deploy
    ```
-2. **Reduce Concurrent Jobs**:
+1. **Reduce Concurrent Jobs**:
    ```bash
    # Edit .env file
    TDARR_CPU_WORKERS=1
    TDARR_GPU_WORKERS=0
    ```
-3. **Free Up RAM**:
+1. **Free Up RAM**:
    ```bash
    # Close other applications
    # Restart computer if needed
    ```
 
----
+______________________________________________________________________
 
 ## 🆘 NUCLEAR OPTIONS
 
 ### When All Else Fails
 
 #### Option 1: Fresh Restart
+
 ```bash
 # Stop everything
 ./deploy.sh stop
 
 # Remove containers (keeps data)
-docker-compose down
+docker compose down
 
 # Start fresh
 ./deploy.sh deploy
 ```
 
 #### Option 2: Reset Single Service
+
 ```bash
 # Stop service
-docker-compose stop jellyfin
+docker compose stop jellyfin
 
 # Remove container
-docker-compose rm jellyfin
+docker compose rm jellyfin
 
 # Remove config (WARNING: loses settings)
 rm -rf ./config/jellyfin
 
 # Restart
-docker-compose up -d jellyfin
+docker compose up -d jellyfin
 ```
 
 #### Option 3: Complete Reset (DANGER!)
+
 ```bash
 # BACKUP FIRST!
 ./scripts/env-manager.sh backup
 
 # Remove everything
-docker-compose down
+docker compose down
 docker system prune -a -f
 
 # Remove config (loses ALL settings)
@@ -396,7 +436,7 @@ rm -rf ./config
 ./deploy.sh deploy
 ```
 
----
+______________________________________________________________________
 
 ## 📋 Diagnostic Information Collection
 
@@ -406,7 +446,7 @@ When asking for help, collect this information:
 # System info
 uname -a
 docker --version
-docker-compose --version
+docker compose --version
 
 # Service status
 ./deploy.sh status
@@ -424,20 +464,21 @@ df -h
 curl -I https://dashboard.yourdomain.com
 ```
 
----
+______________________________________________________________________
 
 ## 🎯 Most Common Issues (90% of problems)
 
 1. **DNS not configured** → Add A records in Cloudflare
-2. **Port forwarding missing** → Forward ports 80/443 in router
-3. **No indexers in Prowlarr** → Add working indexers first
-4. **Wrong API keys** → Copy exact keys from service settings
-5. **Permission errors** → Run `sudo chown -R 1000:1000 /media /downloads`
-6. **Out of disk space** → Enable Tdarr compression
-7. **Weak hardware** → Reduce concurrent jobs, enable GPU
-8. **Firewall blocking** → Allow ports 80/443 in firewall
+1. **Port forwarding missing** → Forward ports 80/443 in router
+1. **No indexers in Prowlarr** → Add working indexers first
+1. **Wrong API keys** → Copy exact keys from service settings
+1. **Permission errors** → Run `sudo chown -R 1000:1000 /media /downloads`
+1. **Out of disk space** → Enable Tdarr compression
+1. **Weak hardware** → Reduce concurrent jobs, enable GPU
+1. **Firewall blocking** → Allow ports 80/443 in firewall
 
 **Remember**: 95% of issues are configuration, not bugs. Double-check your settings! 🔍
+
 ## Recommended Add-on Apps
 
 - **Photoprism:** Self-hosted photo management and backup.
