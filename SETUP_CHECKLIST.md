@@ -21,18 +21,18 @@ _Last updated: July 2025_
   - [ ] Drive formatted (NTFS/ext4/APFS)
 
 - [ ] **Network Access**
-  - [ ] Router admin access (for port forwarding)
+  - [ ] Router admin access (for port forwarding, only if using external access)
   - [ ] Know your router IP (usually `192.168.1.1`)
   - [ ] Internet connection working
   - [ ] Decide: Local only or Cloudflare remote access
 
 ### Accounts & Services
-- [ ] **Domain Name Purchased**
+- [ ] **Domain Name Purchased** *(only for external access)*
   - [ ] From Namecheap, Cloudflare, or other registrar
   - [ ] Example: `media-yourname.com`
   - [ ] Cost: ~$10-15/year
 
-- [ ] **Cloudflare Account Created**
+- [ ] **Cloudflare Account Created** *(only for external access)*
   - [ ] Free account at [cloudflare.com](https://cloudflare.com)
   - [ ] Domain added to Cloudflare
   - [ ] Nameservers changed (may take 24 hours)
@@ -147,8 +147,8 @@ _Last updated: July 2025_
   - [ ] **Domain**: Enter your domain (e.g., `media.yourname.com`)
   - [ ] **Timezone**: Your timezone (e.g., `America/New_York`)
   - [ ] **User IDs**: Accept auto-detected values
-  - [ ] **Cloudflare Email**: Your Cloudflare account email
-  - [ ] **API Token**: Paste your Cloudflare API token
+  - [ ] **Cloudflare Email**: Your Cloudflare account email *(external access only)*
+  - [ ] **API Token**: Paste your Cloudflare API token *(external access only)*
 
 ### Customize Paths (If Using External Drive)
 - [ ] **Edit Configuration**: `nano .env`

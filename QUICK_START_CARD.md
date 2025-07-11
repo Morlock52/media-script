@@ -6,9 +6,9 @@ _Last updated: July 2025_
 
 ## ✅ Pre-Setup Checklist
 
-- [ ] **Domain purchased** (e.g., `media.yourname.com`)
-- [ ] **Cloudflare account** created and domain added
-- [ ] **Cloudflare API token** obtained
+- [ ] **Domain purchased** (e.g., `media.yourname.com`) *(only for external access)*
+- [ ] **Cloudflare account** created and domain added *(only for external access)*
+- [ ] **Cloudflare API token** obtained *(only for external access)*
 - [ ] **Docker installed** and tested (`docker run hello-world`)
 - [ ] **Storage prepared** (external drive recommended)
 - [ ] **Router access** (for port forwarding)
@@ -91,13 +91,13 @@ Replace `yourdomain.com` with your actual domain:
 
 1. **Install Docker** → Test with `docker run hello-world`
 2. **Decide Access Mode** → Local only or Cloudflare remote (first setup prompt)
-3. **Get Domain** → Buy and add to Cloudflare
-4. **Get API Token** → From Cloudflare dashboard
+3. **Get Domain** → Buy and add to Cloudflare *(only if using external access)*
+4. **Get API Token** → From Cloudflare dashboard *(only if using external access)*
 5. **Prepare Storage** → Create directories or mount external drive
 6. **Run Setup** → `./scripts/env-manager.sh init`
 7. **Deploy Stack** → `./deploy.sh deploy`
-8. **Configure DNS** → Add A records in Cloudflare
-9. **Port Forward** → Router: ports 80 and 443 to your PC
+8. **Configure DNS** → Add A records in Cloudflare *(only for external access)*
+9. **Port Forward** → Router: ports 80 and 443 to your PC *(only for external access)*
 10. **Configure Prowlarr** → Add indexers FIRST
 11. **Configure Others** → Sonarr, Radarr, qBittorrent
 12. **Add API Keys** → `./scripts/env-manager.sh setup-api-keys`
