@@ -981,23 +981,25 @@ step_gpu_detection() {
         echo -e "  ${SYMBOLS[CROSS]} ${COLORS[DIM]}NVIDIA GPU: Not detected${COLORS[RESET]}"
     fi
     
-    # Detect Intel GPU
-    if [ -d /dev/dri ] && ls /dev/dri/render* >/dev/null 2>&1; then
-        intel_gpu=$(lspci | grep -i "vga.*intel" | head -1 | cut -d: -f3 | xargs)
-        if [ -n "$intel_gpu" ]; then
+    # Detect Intel GPU (requires lspci)
+    if command -v lspci >/dev/null 2>&1; then
+        if lspci | grep -i "vga.*intel" >/dev/null 2>&1; then
+            intel_gpu=$(lspci | grep -i "vga.*intel" | head -1 | cut -d: -f3 | xargs)
             echo -e "  ${SYMBOLS[CHECK]} ${COLORS[GREEN]}Intel GPU detected: $intel_gpu${COLORS[RESET]}"
             if [ -n "$gpu_detected" ]; then
                 gpu_detected="${gpu_detected}+intel"
             else
                 gpu_detected="intel"
             fi
+        else
+            echo -e "  ${SYMBOLS[CROSS]} ${COLORS[DIM]}Intel GPU: Not detected${COLORS[RESET]}"
         fi
     else
-        echo -e "  ${SYMBOLS[CROSS]} ${COLORS[DIM]}Intel GPU: Not detected${COLORS[RESET]}"
+        echo -e "  ${SYMBOLS[CROSS]} ${COLORS[DIM]}Intel GPU: Detection tool 'lspci' not available${COLORS[RESET]}"
     fi
-    
-    # Detect AMD GPU
-    if lspci | grep -i "vga.*amd" >/dev/null 2>&1; then
+
+    # Detect AMD GPU (requires lspci)
+    if command -v lspci >/dev/null 2>&1 && lspci | grep -i "vga.*amd" >/dev/null 2>&1; then
         amd_gpu=$(lspci | grep -i "vga.*amd" | head -1 | cut -d: -f3 | xargs)
         echo -e "  ${SYMBOLS[CHECK]} ${COLORS[GREEN]}AMD GPU detected: $amd_gpu${COLORS[RESET]}"
         if [ -n "$gpu_detected" ]; then
@@ -1005,8 +1007,10 @@ step_gpu_detection() {
         else
             gpu_detected="amd"
         fi
-    else
+    elif command -v lspci >/dev/null 2>&1; then
         echo -e "  ${SYMBOLS[CROSS]} ${COLORS[DIM]}AMD GPU: Not detected${COLORS[RESET]}"
+    else
+        echo -e "  ${SYMBOLS[CROSS]} ${COLORS[DIM]}AMD GPU: Detection tool 'lspci' not available${COLORS[RESET]}"
     fi
     
     echo
