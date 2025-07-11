@@ -44,7 +44,7 @@ This stack includes many services, but here are some of the stars of the show:
 *   **Sufficient Disk Space:** Your media library can grow large! Plan accordingly.
 *   **Operating System:** Linux-based OS recommended (scripts are Bash).
 *   **(Optional but Recommended)** Basic familiarity with the command line.
-*   **(For Remote Access)** A domain name you own and a Cloudflare account (for SSL and DNS management).
+*   **(For Remote Access)** A domain name you own and a Cloudflare account (for SSL and DNS management). Skip if you choose local-only access.
 
 ## Getting Started
 

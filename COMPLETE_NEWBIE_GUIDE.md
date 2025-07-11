@@ -18,8 +18,8 @@ By the end of this guide, you'll have:
 
 ### What You Need
 1. **A Computer/Server** running Linux, Windows, or macOS
-2. **A Domain Name** (e.g., `media.example.com`) - $10-15/year
-3. **Cloudflare Account** (free) - for SSL certificates
+2. **A Domain Name** (e.g., `media.example.com`) - $10-15/year *(only for external access)*
+3. **Cloudflare Account** (free) - for SSL certificates *(only for external access)*
 4. **Basic Storage** - External drive or NAS for your media
 5. **Internet Connection** - For downloading content and remote access
 
@@ -90,7 +90,7 @@ docker run hello-world
 
 You should see: `Hello from Docker!`
 
-## 🌐 Step 2: Domain and DNS Setup
+## 🌐 Step 2: Domain and DNS Setup *(skip if using local-only access)*
 
 ### Get a Domain Name
 1. Go to [Namecheap](https://namecheap.com) or [Cloudflare](https://cloudflare.com)

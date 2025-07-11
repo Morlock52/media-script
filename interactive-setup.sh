@@ -431,8 +431,7 @@ step_welcome() {
     echo
     echo -e "${COLORS[YELLOW]}${SYMBOLS[INFO]} ${COLORS[BOLD]}What you'll need:${COLORS[RESET]}"
     echo -e "  ${SYMBOLS[BULLET]} A computer with Docker installed"
-    echo -e "  ${SYMBOLS[BULLET]} A domain name (\$10-15/year)"
-    echo -e "  ${SYMBOLS[BULLET]} Cloudflare account (free)"
+    echo -e "  ${SYMBOLS[BULLET]} A domain name (\$10-15/year) and Cloudflare account (free) if you want external access"
     echo -e "  ${SYMBOLS[BULLET]} 30-60 minutes of your time"
     echo
     echo -e "${COLORS[GREEN]}${SYMBOLS[TROPHY]} ${COLORS[BOLD]}Result: Save \$1,500+/year vs Netflix, Hulu, Disney+!${COLORS[RESET]}"
@@ -451,10 +450,10 @@ step_access_mode() {
     CURRENT_STEP=2
     show_progress $CURRENT_STEP $TOTAL_STEPS
 
-    section_header "Access Mode" "Choose local-only or Cloudflare remote access" "${SYMBOLS[GLOBE]}"
-    echo -e "${COLORS[CYAN]}You can run the stack only on your local network or expose it securely via Cloudflare.${COLORS[RESET]}"
+    section_header "Access Mode" "Choose local-only or Cloudflare external access" "${SYMBOLS[GLOBE]}"
+    echo -e "${COLORS[CYAN]}You can run the stack only on your local network or expose it securely via Cloudflare for remote access.${COLORS[RESET]}"
     echo
-    if prompt_yn "Enable remote access using Cloudflare?" "y"; then
+    if prompt_yn "Enable external access using Cloudflare?" "y"; then
         ACCESS_MODE="cloudflare"
     else
         ACCESS_MODE="local"

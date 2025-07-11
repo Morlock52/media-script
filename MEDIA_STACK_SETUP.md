@@ -28,8 +28,8 @@ This Docker Compose setup provides a complete media server stack with Jellyfin a
 ## Prerequisites
 
 1. **Docker and Docker Compose** installed
-2. **Cloudflare account** with domain managed by Cloudflare
-3. **Cloudflare API token** with Zone:Read and Zone:Zone permissions
+2. **Cloudflare account** with domain managed by Cloudflare *(only for external access)*
+3. **Cloudflare API token** with Zone:Read and Zone:Zone permissions *(only for external access)*
 4. **Directory structure** for media storage
 
 ## Setup Instructions
