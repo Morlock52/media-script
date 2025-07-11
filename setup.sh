@@ -181,9 +181,37 @@ fi
 
 # Create .env file if it doesn't exist
 if [ ! -f .env ]; then
-    echo "📝 Creating .env file..."
-    cp .env .env.example 2>/dev/null || true
-    echo "⚠️  Please edit .env file with your configuration before starting services"
+    echo "📝 Generating .env configuration..."
+    cp .env.example .env
+
+    read -rp "Domain [yourdomain.com]: " DOMAIN_INPUT
+    DOMAIN="${DOMAIN_INPUT:-yourdomain.com}"
+    sed -i.bak "s|DOMAIN=yourdomain.com|DOMAIN=$DOMAIN|" .env
+
+    read -rp "Access mode (local/remote) [remote]: " ACCESS_INPUT
+    ACCESS_MODE="${ACCESS_INPUT:-remote}"
+    sed -i.bak "s|ACCESS_MODE=remote|ACCESS_MODE=$ACCESS_MODE|" .env
+
+    DEFAULT_TZ=$(cat /etc/timezone 2>/dev/null || echo "America/New_York")
+    read -rp "Timezone [${DEFAULT_TZ}]: " TZ_INPUT
+    TZ="${TZ_INPUT:-$DEFAULT_TZ}"
+    sed -i.bak "s|TZ=America/New_York|TZ=$TZ|" .env
+
+    read -rp "Cloudflare email [your-email@example.com]: " CF_EMAIL_INPUT
+    CF_EMAIL="${CF_EMAIL_INPUT:-your-email@example.com}"
+    sed -i.bak "s|CLOUDFLARE_EMAIL=your-email@example.com|CLOUDFLARE_EMAIL=$CF_EMAIL|" .env
+
+    read -rp "Cloudflare API token [your-cloudflare-api-token]: " CF_TOKEN_INPUT
+    CF_TOKEN="${CF_TOKEN_INPUT:-your-cloudflare-api-token}"
+    sed -i.bak "s|CLOUDFLARE_API_TOKEN=your-cloudflare-api-token|CLOUDFLARE_API_TOKEN=$CF_TOKEN|" .env
+
+    sed -i.bak "s|PUID=1000|PUID=$USER_ID|" .env
+    sed -i.bak "s|PGID=1000|PGID=$GROUP_ID|" .env
+    sed -i.bak "s|MEDIA_PATH=/media|MEDIA_PATH=$MEDIA_DIR|" .env
+    sed -i.bak "s|DOWNLOADS_PATH=/downloads|DOWNLOADS_PATH=$DOWNLOADS_DIR|" .env
+    rm -f .env.bak
+
+    echo "✅ .env file created. Review it before starting services."
 fi
 
 # Set correct PUID/PGID in docker-compose.yml if needed
