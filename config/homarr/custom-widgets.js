@@ -57,11 +57,12 @@ const mediaLibraryStats = {
     `,
     styles: `
       .media-stats-widget {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
         border-radius: 12px;
         padding: 20px;
         color: white;
         height: 100%;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
       }
       
       .widget-title {
@@ -208,13 +209,14 @@ const activeDownloads = {
     `,
     styles: `
       .downloads-widget {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        background: linear-gradient(135deg, #ff757f 0%, #ff5864 100%);
         border-radius: 12px;
         padding: 20px;
         color: white;
         height: 100%;
         display: flex;
         flex-direction: column;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
       }
       
       .widget-title {
@@ -423,11 +425,12 @@ const systemResources = {
     `,
     styles: `
       .resources-widget {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        background: linear-gradient(135deg, #5eead4 0%, #2dd4bf 100%);
         border-radius: 12px;
         padding: 20px;
         color: white;
         height: 100%;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
       }
       
       .widget-title {

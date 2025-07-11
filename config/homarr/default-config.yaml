@@ -229,21 +229,37 @@ appearance:
   showAppDescriptions: true
   showAppPing: true
   customCSS: |
-    /* Custom styling for media stack */
+    /* Modernized styling for media stack */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #1e2128;
+      color: #e4e4e7;
+    }
+
     .category-title {
-      background: linear-gradient(45deg, #fa5252, #fd7e14);
+      background: linear-gradient(60deg, #845ef7, #5c7cfa);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      font-weight: bold;
+      font-weight: 600;
     }
-    
-    .app-card:hover {
-      transform: translateY(-2px);
-      transition: transform 0.2s ease;
-    }
-    
-    .widget-container {
-      backdrop-filter: blur(10px);
-      background: rgba(255, 255, 255, 0.1);
+
+    .app-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 12px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .app-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .widget-container {
+      backdrop-filter: blur(16px);
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
