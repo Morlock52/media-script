@@ -3,7 +3,16 @@
 # Media Stack Setup Script
 # This script creates necessary directories and sets proper permissions
 
-set -e
+set -euo pipefail
+
+LOG_FILE="setup.log"
+exec > >(tee -a "$LOG_FILE") 2>&1
+
+error_exit() {
+    echo -e "${RED}[ERROR]${RESET} Line $1 failed"
+}
+
+trap 'error_exit $LINENO' ERR
 
 # Colors and symbols for interactive output
 RED='\033[0;31m'

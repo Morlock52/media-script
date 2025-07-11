@@ -31,7 +31,7 @@ elif command -v whiptail >/dev/null 2>&1; then
 fi
 BACKTITLE="Media Stack Setup Wizard"
 
-set -e
+set -euo pipefail
 
 # ============================================================================
 # CONFIGURATION AND GLOBALS
@@ -41,6 +41,15 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$SCRIPT_DIR"
 SETUP_LOG="$PROJECT_ROOT/setup.log"
 PROGRESS_FILE="$PROJECT_ROOT/.setup_progress"
+
+LOG_FILE="$SETUP_LOG"
+exec > >(tee -a "$LOG_FILE") 2>&1
+
+error_exit() {
+  echo "Error on line $1" >&2
+}
+
+trap 'error_exit $LINENO' ERR
 
 # Colors and formatting
 declare -A COLORS=(

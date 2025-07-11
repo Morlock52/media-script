@@ -2,7 +2,16 @@
 
 # Quick start script for Media Stack
 
-set -e
+set -euo pipefail
+
+LOG_FILE="start.log"
+exec > >(tee -a "$LOG_FILE") 2>&1
+
+error_exit() {
+    echo "❌ Command failed at line $1"
+}
+
+trap 'error_exit $LINENO' ERR
 
 echo "🚀 Starting Media Stack..."
 
