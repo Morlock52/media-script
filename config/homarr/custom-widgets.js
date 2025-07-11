@@ -62,6 +62,7 @@ const mediaLibraryStats = {
         padding: 20px;
         color: white;
         height: 100%;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       }
       
       .widget-title {
@@ -86,6 +87,7 @@ const mediaLibraryStats = {
         align-items: center;
         gap: 12px;
         backdrop-filter: blur(10px);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
       }
       
       .stat-icon {
@@ -215,6 +217,7 @@ const activeDownloads = {
         height: 100%;
         display: flex;
         flex-direction: column;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       }
       
       .widget-title {
@@ -231,6 +234,7 @@ const activeDownloads = {
         padding: 10px;
         background: rgba(255, 255, 255, 0.1);
         border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
       }
       
       .summary-stat {
@@ -260,6 +264,7 @@ const activeDownloads = {
         border-radius: 6px;
         padding: 10px;
         margin-bottom: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
       }
       
       .download-name {
@@ -428,6 +433,7 @@ const systemResources = {
         padding: 20px;
         color: white;
         height: 100%;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       }
       
       .widget-title {
@@ -439,6 +445,9 @@ const systemResources = {
       
       .resource-item {
         margin-bottom: 15px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        padding: 8px;
+        border-radius: 6px;
       }
       
       .resource-label {
