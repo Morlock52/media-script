@@ -13,7 +13,6 @@ CYAN='\033[0;36m'
 BOLD='\033[1m'
 RESET='\033[0m'
 CHECK='✅'
-CROSS='❌'
 ARROW='➜'
 
 echo
@@ -160,12 +159,12 @@ fi
 # Set permissions for config directories
 echo "🔐 Setting permissions for config directories..."
 chmod -R 755 config/
-chown -R $USER_ID:$GROUP_ID config/
+chown -R "$USER_ID:$GROUP_ID" config/
 
 # Set permissions for media directories
 echo "🔐 Setting permissions for media directories..."
 if [[ "$OS" == "Linux" ]]; then
-    sudo chown -R $USER_ID:$GROUP_ID "$MEDIA_DIR" "$DOWNLOADS_DIR"
+    sudo chown -R "$USER_ID:$GROUP_ID" "$MEDIA_DIR" "$DOWNLOADS_DIR"
     sudo chmod -R 755 "$MEDIA_DIR" "$DOWNLOADS_DIR"
 else
     chmod -R 755 "$MEDIA_DIR" "$DOWNLOADS_DIR"

@@ -7,15 +7,17 @@ This guide explains the optimized environment variable system that reduces dupli
 ## Overview
 
 The media stack uses a comprehensive environment variable system that:
+
 - **Eliminates duplication** across docker-compose services
 - **Centralizes configuration** in a single `.env` file
 - **Provides intelligent defaults** for most settings
-- **Supports dynamic path configuration** 
+- **Supports dynamic path configuration**
 - **Enables conditional features** (GPU acceleration, profiles)
 
 ## Quick Start
 
 ### 1. Initialize Environment
+
 ```bash
 # Interactive setup for first time
 ./scripts/env-manager.sh init
@@ -26,6 +28,7 @@ nano .env
 ```
 
 ### 2. Deploy with Auto-Detection
+
 ```bash
 # Automatic GPU detection and deployment
 ./deploy.sh deploy
@@ -39,6 +42,7 @@ nano .env
 The `.env` file is organized into logical sections:
 
 ### Core Configuration
+
 ```bash
 DOMAIN=yourdomain.com                 # Your primary domain
 COMPOSE_PROJECT_NAME=media-stack      # Docker project name
@@ -48,6 +52,7 @@ PGID=1000                            # Group ID
 ```
 
 ### Storage Paths
+
 ```bash
 # Base paths (customize these)
 CONFIG_PATH=./config
@@ -63,6 +68,7 @@ MUSIC_PATH=${MEDIA_PATH}/music
 ```
 
 ### Hardware Acceleration
+
 ```bash
 # GPU feature flags
 ENABLE_NVIDIA_GPU=false
@@ -76,6 +82,7 @@ VIDEO_GROUP_ID=109
 ```
 
 ### Service Configuration
+
 ```bash
 # Tdarr processing
 TDARR_CPU_WORKERS=2
@@ -91,6 +98,7 @@ QBITTORRENT_WEBUI_PORT=8080
 ## Key Benefits
 
 ### 1. Path Flexibility
+
 Change base paths and all dependent paths update automatically:
 
 ```bash
@@ -111,6 +119,7 @@ MEDIA_PATH=/mnt/storage  # All paths now use /mnt/storage/
 ```
 
 ### 2. Service Reusability
+
 Common configurations are defined once using YAML anchors:
 
 ```yaml
@@ -136,22 +145,24 @@ radarr:
 ```
 
 ### 3. Conditional Features
+
 Features can be enabled/disabled without editing docker-compose:
 
 ```bash
 # Enable alternative dashboards
-docker-compose --profile alternative-dashboard up -d
+docker compose --profile alternative-dashboard up -d
 
 # Enable auto-updates
-docker-compose --profile auto-update up -d
+docker compose --profile auto-update up -d
 
 # Enable multi-node processing
-docker-compose --profile multi-node up -d
+docker compose --profile multi-node up -d
 ```
 
 ## Environment Management Commands
 
 ### env-manager.sh
+
 Comprehensive environment management tool:
 
 ```bash
@@ -178,6 +189,7 @@ Comprehensive environment management tool:
 ```
 
 ### deploy.sh
+
 Intelligent deployment with auto-detection:
 
 ```bash
@@ -211,6 +223,7 @@ Docker Compose file generated with GPU support: nvidia
 ```
 
 This modifies the base template to include:
+
 - Appropriate device mappings
 - GPU environment variables
 - Hardware-specific optimizations
@@ -273,6 +286,7 @@ group_add:
 ## Configuration Examples
 
 ### Home Server Setup
+
 ```bash
 DOMAIN=media.home.local
 MEDIA_PATH=/mnt/storage
@@ -282,6 +296,7 @@ TDARR_GPU_WORKERS=2
 ```
 
 ### VPS/Cloud Setup
+
 ```bash
 DOMAIN=media.example.com
 MEDIA_PATH=/opt/media
@@ -291,6 +306,7 @@ TDARR_CPU_WORKERS=4
 ```
 
 ### Multi-User Setup
+
 ```bash
 DOMAIN=family-media.com
 COMPOSE_PROJECT_NAME=family-media
@@ -301,6 +317,7 @@ BASIC_AUTH_PASS=secure-password
 ## Troubleshooting
 
 ### Environment Validation
+
 ```bash
 # Check for configuration issues
 ./scripts/env-manager.sh validate
@@ -312,6 +329,7 @@ BASIC_AUTH_PASS=secure-password
 ```
 
 ### Path Issues
+
 ```bash
 # Check current paths
 ./scripts/env-manager.sh show
@@ -324,6 +342,7 @@ BASIC_AUTH_PASS=secure-password
 ```
 
 ### GPU Problems
+
 ```bash
 # Check GPU detection
 ./deploy.sh deploy --gpu none  # Disable GPU
@@ -338,35 +357,41 @@ BASIC_AUTH_PASS=secure-password
 ## Migration from Old Setup
 
 ### From Static docker-compose.yml
+
 1. **Backup existing**: `cp docker-compose.yml docker-compose.yml.backup`
-2. **Initialize environment**: `./scripts/env-manager.sh init`
-3. **Customize paths**: Edit `.env` to match your current paths
-4. **Deploy optimized**: `./deploy.sh deploy`
+1. **Initialize environment**: `./scripts/env-manager.sh init`
+1. **Customize paths**: Edit `.env` to match your current paths
+1. **Deploy optimized**: `./deploy.sh deploy`
 
 ### From Manual Configuration
+
 1. **Extract settings**: Note your current paths, domains, etc.
-2. **Run initialization**: `./scripts/env-manager.sh init`
-3. **Apply your settings**: Use the interactive prompts
-4. **Validate configuration**: `./scripts/env-manager.sh validate`
+1. **Run initialization**: `./scripts/env-manager.sh init`
+1. **Apply your settings**: Use the interactive prompts
+1. **Validate configuration**: `./scripts/env-manager.sh validate`
 
 ## Best Practices
 
 ### Environment File Management
+
 - **Version control**: Add `.env` to `.gitignore`, track `.env.example`
 - **Backup regularly**: Use `./scripts/env-manager.sh backup`
 - **Document changes**: Comment custom modifications in `.env`
 
 ### Security Considerations
+
 - **Protect API keys**: Restrict `.env` file permissions
 - **Regular rotation**: Update API keys periodically
 - **Secure passwords**: Use strong passwords for authentication
 
 ### Maintenance Schedule
+
 - **Weekly**: Check service health with `./deploy.sh status`
 - **Monthly**: Update services with `./deploy.sh update`
 - **Quarterly**: Review and update `.env` configuration
 
 This optimized environment system provides a robust, maintainable foundation for your media stack that grows with your needs while minimizing configuration complexity.
+
 ## Recommended Add-on Apps
 
 - **Photoprism:** Self-hosted photo management and backup.

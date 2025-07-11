@@ -7,9 +7,10 @@ This Docker Compose setup provides a complete media server stack with Jellyfin a
 ## Included Applications
 
 ### Core Media Stack
+
 - **Jellyfin**: Media server with comprehensive format support (AV1, HEVC, VP9, H.264, etc.)
 - **Sonarr**: TV show management and automation
-- **Radarr**: Movie management and automation  
+- **Radarr**: Movie management and automation
 - **Lidarr**: Music management and automation
 - **Readarr**: Book management and automation
 - **Prowlarr**: Indexer management (replaces Jackett)
@@ -21,6 +22,7 @@ This Docker Compose setup provides a complete media server stack with Jellyfin a
 - **Caddy**: Reverse proxy with automatic SSL
 
 ### Format Processing & Conversion Tools
+
 - **HandBrake**: Automated video conversion with presets
 - **FFmpeg**: Advanced media processing with all modern codecs
 - **MKVToolNix**: Container format management and manipulation
@@ -28,9 +30,9 @@ This Docker Compose setup provides a complete media server stack with Jellyfin a
 ## Prerequisites
 
 1. **Docker and Docker Compose** installed
-2. **Cloudflare account** with domain managed by Cloudflare *(only for external access)*
-3. **Cloudflare API token** with Zone:Read and Zone:Zone permissions *(only for external access)*
-4. **Directory structure** for media storage
+1. **Cloudflare account** with domain managed by Cloudflare *(only for external access)*
+1. **Cloudflare API token** with Zone:Read and Zone:Zone permissions *(only for external access)*
+1. **Directory structure** for media storage
 
 ## Setup Instructions
 
@@ -65,7 +67,7 @@ Create the following directory structure on your host:
 ### 2. Environment Configuration
 
 1. Copy `.env.example` to `.env`
-2. Edit `.env` and configure:
+1. Edit `.env` and configure:
    - `DOMAIN`: Your domain (e.g., media.example.com)
    - `CLOUDFLARE_EMAIL`: Your Cloudflare account email
    - `CLOUDFLARE_API_TOKEN`: Your Cloudflare API token
@@ -75,6 +77,7 @@ Create the following directory structure on your host:
 ### 3. Cloudflare DNS Setup
 
 Create DNS A records pointing to your server's IP:
+
 - `jellyfin.yourdomain.com`
 - `sonarr.yourdomain.com`
 - `radarr.yourdomain.com`
@@ -95,51 +98,56 @@ Create DNS A records pointing to your server's IP:
 ./setup.sh
 
 # Start all services
-docker-compose up -d
+docker compose up -d
 
 # Check logs
-docker-compose logs -f
+docker compose logs -f
 ```
 
 ### 5. Initial Configuration
 
 #### Prowlarr (Configure First)
+
 1. Access `https://prowlarr.yourdomain.com`
-2. Add indexers 
-3. Add applications (Sonarr, Radarr, Lidarr, Readarr) with API keys
-4. Configure FlareSolverr URL: `http://flaresolverr:8191`
+1. Add indexers
+1. Add applications (Sonarr, Radarr, Lidarr, Readarr) with API keys
+1. Configure FlareSolverr URL: `http://flaresolverr:8191`
 
 #### Download Client (qBittorrent)
+
 1. Access `https://qbittorrent.yourdomain.com`
-2. Login with default credentials (admin/adminadmin)
-3. Change password in settings
-4. Set download path to `/downloads`
+1. Login with default credentials (admin/adminadmin)
+1. Change password in settings
+1. Set download path to `/downloads`
 
 #### Usenet Client (NZBGet)
+
 1. Access `https://nzbget.yourdomain.com`
-2. Login with default credentials (nzbget/nzbget)
-3. Change username/password in settings
-4. Set download paths:
+1. Login with default credentials (nzbget/nzbget)
+1. Change username/password in settings
+1. Set download paths:
    - Default download directory: `/downloads/complete`
    - Incomplete directory: `/downloads/incomplete`
 
 #### Arr Applications
+
 1. Configure download client (qBittorrent) in each app
-2. Set up quality profiles and naming conventions
-3. Add root folders:
+1. Set up quality profiles and naming conventions
+1. Add root folders:
    - Sonarr: `/tv`
    - Radarr: `/movies`
    - Lidarr: `/music`
    - Readarr: `/books`
-4. Enable hardlinks and instant moves:
-   - In each *arr app, go to Settings → Media Management → File Management
+1. Enable hardlinks and instant moves:
+   - In each \*arr app, go to Settings → Media Management → File Management
    - Enable "Use Hardlinks instead of Copy" and "Enable Instant Rename"
    - See https://trash-guides.info/File-and-Folder-Structure/Hardlinks-and-Instant-Moves for details
 
 #### Jellyfin (Enhanced Format Support)
+
 1. Access `https://jellyfin.yourdomain.com`
-2. Complete initial setup wizard
-3. Add media libraries:
+1. Complete initial setup wizard
+1. Add media libraries:
    - Movies: `/data/movies`
    - TV Shows: `/data/tv`
    - Music: `/data/music`
@@ -147,16 +155,17 @@ docker-compose logs -f
    - Anime: `/data/anime`
    - Documentaries: `/data/documentaries`
    - 4K Content: `/data/4k`
-4. Configure hardware transcoding (if GPU available):
+1. Configure hardware transcoding (if GPU available):
    - Go to Dashboard > Playback
    - Enable hardware acceleration (NVENC, QSV, or VA-API)
    - Configure transcoding settings for optimal performance
-5. Set up transcoding profiles for different clients and quality levels
+1. Set up transcoding profiles for different clients and quality levels
 
 #### Overseerr
+
 1. Access `https://overseerr.yourdomain.com`
-2. Sign in with Jellyfin account
-3. Configure Sonarr and Radarr connections
+1. Sign in with Jellyfin account
+1. Configure Sonarr and Radarr connections
 
 ## Security Considerations
 
@@ -169,48 +178,55 @@ docker-compose logs -f
 ## Backup Strategy
 
 Important directories to backup:
+
 - `./config/` - All application configurations
 - Media libraries (separate backup strategy recommended)
 
 ## Troubleshooting
 
 ### Permission Issues
+
 - Ensure PUID/PGID match your user
 - Check directory ownership: `sudo chown -R 1000:1000 /downloads /media`
 
-### SSL Certificate Issues  
+### SSL Certificate Issues
+
 - Verify Cloudflare API token permissions
 - Check DNS propagation
-- Review Caddy logs: `docker-compose logs caddy`
+- Review Caddy logs: `docker compose logs caddy`
 
 ### Download Issues
-- Check qBittorrent connection in *arr apps
+
+- Check qBittorrent connection in \*arr apps
 - Verify download path consistency
 - Ensure adequate disk space
 
 ## Maintenance
 
 ### Updates
+
 ```bash
 # Pull latest images
-docker-compose pull
+docker compose pull
 
 # Restart services
-docker-compose up -d
+docker compose up -d
 ```
 
 ### Log Management
+
 ```bash
 # View logs
-docker-compose logs [service-name]
+docker compose logs [service-name]
 
 # Follow logs
-docker-compose logs -f [service-name]
+docker compose logs -f [service-name]
 ```
 
 ## Supported Media Formats
 
 ### Video Codecs (2025 Support)
+
 - **Versatile Video Coding (VVC/H.266)**: Next-generation codec with high compression efficiency (~50% better than HEVC)
 - **Low Complexity Enhancement Video Coding (LCEVC)**: Enhancement layer for improved compression efficiency on existing codecs
 - **Essential Video Coding (EVC/MPEG-5)**: Modern codec with multiple profiles for broad compatibility
@@ -222,6 +238,7 @@ docker-compose logs -f [service-name]
 - **MPEG-4/DivX/Xvid**: Legacy format support
 
 ### Audio Codecs
+
 - **Opus**: Modern efficient audio codec
 - **FLAC**: Lossless compression
 - **AAC**: Standard lossy compression
@@ -232,6 +249,7 @@ docker-compose logs -f [service-name]
 - **Dolby TrueHD/Atmos**: Premium audio formats
 
 ### Container Formats
+
 - **MP4**: Universal compatibility
 - **MKV**: Feature-rich container
 - **WebM**: Web-optimized format
@@ -240,6 +258,7 @@ docker-compose logs -f [service-name]
 - **TS**: Transport stream
 
 ### Subtitle Formats
+
 - **SRT**: SubRip text subtitles
 - **ASS/SSA**: Advanced subtitle styling
 - **VobSub**: DVD picture subtitles
@@ -249,6 +268,7 @@ docker-compose logs -f [service-name]
 ## Format Conversion Tools
 
 ### Automated Conversion Scripts
+
 ```bash
 # Convert single file
 ./scripts/ffmpeg/convert-formats.sh
@@ -260,6 +280,7 @@ docker-compose logs -f [service-name]
 ```
 
 ### HandBrake Web Interface
+
 - Access: `https://handbrake.yourdomain.com`
 - Automated conversion with presets
 - Watch folder: `/downloads/convert-input`
@@ -268,27 +289,32 @@ docker-compose logs -f [service-name]
 ### Hardware Acceleration Setup
 
 #### NVIDIA GPU (NVENC/NVDEC)
+
 1. Uncomment NVIDIA device mappings in docker-compose.yml
-2. Install nvidia-docker2 on host
-3. Supported codecs: H.264, HEVC, AV1 (RTX 40xx series)
+1. Install nvidia-docker2 on host
+1. Supported codecs: H.264, HEVC, AV1 (RTX 40xx series)
 
 #### Intel GPU (QSV/VA-API)
+
 1. Uncomment Intel device mappings in docker-compose.yml
-2. Add user to video group: `sudo usermod -a -G video $USER`
-3. Supported codecs: H.264, HEVC, AV1 (12th gen+)
+1. Add user to video group: `sudo usermod -a -G video $USER`
+1. Supported codecs: H.264, HEVC, AV1 (12th gen+)
 
 #### AMD GPU (AMF)
+
 1. Install AMD drivers with AMF support
-2. Configure VA-API for hardware acceleration
+1. Configure VA-API for hardware acceleration
 
 ## Default Access URLs
 
 ### Media Services
+
 - Jellyfin: `https://jellyfin.yourdomain.com`
 - Overseerr: `https://overseerr.yourdomain.com`
 - Tautulli: `https://tautulli.yourdomain.com`
 
 ### Management Services
+
 - Sonarr: `https://sonarr.yourdomain.com`
 - Radarr: `https://radarr.yourdomain.com`
 - Lidarr: `https://lidarr.yourdomain.com`
@@ -297,9 +323,11 @@ docker-compose logs -f [service-name]
 - Bazarr: `https://bazarr.yourdomain.com`
 
 ### Download & Processing
+
 - qBittorrent: `https://qbittorrent.yourdomain.com`
 - HandBrake: `https://handbrake.yourdomain.com`
 - MKVToolNix: `https://mkvtoolnix.yourdomain.com`
+
 ## Recommended Add-on Apps
 
 - **Photoprism:** Self-hosted photo management and backup.
