@@ -171,6 +171,8 @@ The interactive setup or your environment configuration files (`.env` or similar
 - **Permission Issues:** Double-check directory permissions set by `setup.sh`.
 - **Port Conflicts:** Ensure the ports required by the services are not already in use.
 - **Docker Logs:** Use `docker logs <container_name>` to check for errors in specific services.
+- **Setup Logs:** `deploy.sh` writes a `deploy.log` file in the project root.
+  Check this log if the deployment exits unexpectedly.
 
 ## Contributing
 

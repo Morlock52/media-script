@@ -3,10 +3,19 @@
 # Media Stack Deployment Script
 # Intelligent deployment with environment validation and GPU detection
 
-set -e
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$SCRIPT_DIR"
+
+LOG_FILE="$PROJECT_ROOT/deploy.log"
+exec > >(tee -a "$LOG_FILE") 2>&1
+
+error_exit() {
+    echo -e "${RED}[ERROR]${NC} Command failed at line $1"
+}
+
+trap 'error_exit $LINENO' ERR
 
 # Colors for output
 RED='\033[0;31m'
