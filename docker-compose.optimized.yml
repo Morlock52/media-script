@@ -383,7 +383,7 @@ services:
   # ================================
 
   caddy:
-    image: caddy:latest
+    image: lucaslorentz/caddy-docker-proxy:2.10-alpine
     container_name: caddy
     <<: *restart-policy
     cap_add:
@@ -396,8 +396,10 @@ services:
       - ${CONFIG_PATH}/caddy/Caddyfile:/etc/caddy/Caddyfile
       - ${CONFIG_PATH}/caddy/data:/data
       - ${CONFIG_PATH}/caddy/config:/config
+      - /var/run/docker.sock:/var/run/docker.sock
     <<: *network
     environment:
+      - CADDY_INGRESS_NETWORKS=${NETWORK_NAME}
       - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL}
       - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
       - DOMAIN=${DOMAIN}
