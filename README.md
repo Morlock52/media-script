@@ -128,6 +128,14 @@ Once the initial setup and configuration are complete, you can deploy and manage
     ./deploy.sh logs jellyfin     # Tail logs for a service
     ```
 
+## Reverse Proxy with Caddy
+
+This stack now ships with [Caddy](https://caddyserver.com) acting as a dynamic
+reverse proxy for all services. It uses the `lucaslorentz/caddy-docker-proxy`
+image, which reads Docker labels from the compose file to generate configuration
+automatically. Provide your Cloudflare credentials in `.env` and Caddy will
+obtain HTTPS certificates for your subdomains without manual setup.
+
 ## Accessing Your Media Empire
 
 Once deployed, your services will be accessible via specific URLs and ports. 
