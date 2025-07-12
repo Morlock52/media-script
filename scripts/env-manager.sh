@@ -33,6 +33,22 @@ info() {
     echo -e "${BLUE}[INFO]${NC} $1"
 }
 
+# Helper: set variable in .env
+set_env_var() {
+    local var="$1"
+    local value="$2"
+    if grep -q "^${var}=" "$ENV_FILE"; then
+        sed -i.bak "s|^${var}=.*|${var}=${value}|" "$ENV_FILE"
+    else
+        echo "${var}=${value}" >> "$ENV_FILE"
+    fi
+}
+
+# Helper: get default value from .env.example
+get_default() {
+    grep "^$1=" "$ENV_EXAMPLE" | cut -d= -f2-
+}
+
 # Function to create .env from .env.example
 init_env() {
     log "Initializing environment configuration..."
@@ -161,6 +177,47 @@ validate_env() {
     else
         error "Environment validation failed with $errors errors"
         exit 1
+    fi
+}
+
+# Prompt for missing mandatory variables and update .env
+check_env() {
+    log "Checking for missing mandatory settings..."
+
+    if [ ! -f "$ENV_FILE" ]; then
+        error ".env file not found. Run: $0 init"
+        exit 1
+    fi
+
+    # Source existing values
+    set -a
+    source "$ENV_FILE"
+    set +a
+
+    local updated=0
+    required_vars=(DOMAIN TZ PUID PGID ACCESS_MODE)
+    if [[ "${ACCESS_MODE:-remote}" != "local" ]]; then
+        required_vars+=(CLOUDFLARE_EMAIL CLOUDFLARE_API_TOKEN)
+    fi
+
+    for var in "${required_vars[@]}"; do
+        current="${!var:-}"
+        default="$(get_default "$var")"
+        if [ -z "$current" ] || [[ "$current" == "$default" ]] || [[ "$current" == *"your-"* ]] || [[ "$current" == *"yourdomain"* ]]; then
+            read -p "Enter value for $var [${default}]: " input
+            value="${input:-$default}"
+            set_env_var "$var" "$value"
+            export "$var=$value"
+            updated=1
+        fi
+    done
+
+    rm -f "$ENV_FILE.bak"
+
+    if [ $updated -eq 0 ]; then
+        log "All mandatory settings are configured"
+    else
+        log "Updated configuration saved to .env"
     fi
 }
 
@@ -416,6 +473,9 @@ case "${1:-}" in
     "validate")
         validate_env
         ;;
+    "check")
+        check_env
+        ;;
     "show"|"config")
         show_config
         ;;
@@ -439,6 +499,7 @@ case "${1:-}" in
         echo "Commands:"
         echo "  init           Initialize .env file from .env.example"
         echo "  validate       Validate current .env configuration"
+        echo "  check          Prompt for any missing required settings"
         echo "  show           Show current configuration"
         echo "  setup-api-keys Configure API keys for services"
         echo "  update-paths   Update storage paths"
@@ -449,6 +510,7 @@ case "${1:-}" in
         echo "Examples:"
         echo "  $0 init                    # First time setup"
         echo "  $0 validate               # Check configuration"
+        echo "  $0 check                  # Fix missing settings"
         echo "  $0 setup-api-keys         # Configure API keys"
         echo "  $0 enable-gpu             # Setup GPU acceleration"
         ;;

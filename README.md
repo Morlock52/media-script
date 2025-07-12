@@ -91,8 +91,9 @@ This stack includes many services, but here are some of the stars of the show:
      After editing the `.env` file, validate your settings and confirm Docker is installed:
 
      ```bash
-     ./scripts/env-manager.sh validate
-     ./deploy.sh status
+    ./scripts/env-manager.sh validate
+    ./scripts/env-manager.sh check
+    ./deploy.sh status
      ```
 
 ## Deployment & Management
