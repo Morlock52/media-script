@@ -172,6 +172,9 @@ Comprehensive environment management tool:
 # Validate current configuration
 ./scripts/env-manager.sh validate
 
+# Prompt for missing values
+./scripts/env-manager.sh check
+
 # Show current settings
 ./scripts/env-manager.sh show
 
@@ -321,6 +324,7 @@ BASIC_AUTH_PASS=secure-password
 ```bash
 # Check for configuration issues
 ./scripts/env-manager.sh validate
+./scripts/env-manager.sh check
 
 # Common issues and solutions:
 # - Missing API keys: Run setup-api-keys
@@ -369,6 +373,7 @@ BASIC_AUTH_PASS=secure-password
 1. **Run initialization**: `./scripts/env-manager.sh init`
 1. **Apply your settings**: Use the interactive prompts
 1. **Validate configuration**: `./scripts/env-manager.sh validate`
+1. **Fill missing values**: `./scripts/env-manager.sh check`
 
 ## Best Practices
 
