@@ -106,15 +106,21 @@ log() {
 
 # Save progress
 save_progress() {
-    echo "$CURRENT_STEP" > "$PROGRESS_FILE"
+    echo "${CURRENT_STEP}:${TOTAL_STEPS}" > "$PROGRESS_FILE"
     log "Progress saved: Step $CURRENT_STEP/$TOTAL_STEPS"
 }
 
 # Load progress
 load_progress() {
     if [ -f "$PROGRESS_FILE" ]; then
-        CURRENT_STEP=$(cat "$PROGRESS_FILE")
-        log "Progress loaded: Step $CURRENT_STEP/$TOTAL_STEPS"
+        IFS=":" read -r saved_step saved_total < "$PROGRESS_FILE"
+        if [ -n "$saved_total" ] && [ "$saved_total" -ne "$TOTAL_STEPS" ]; then
+            log "Progress file outdated (saved $saved_total steps, expected $TOTAL_STEPS). Starting fresh."
+            CURRENT_STEP=0
+        else
+            CURRENT_STEP="$saved_step"
+            log "Progress loaded: Step $CURRENT_STEP/$TOTAL_STEPS"
+        fi
     fi
 }
 
