@@ -55,9 +55,8 @@ init_env() {
     
     if [ -f "$ENV_FILE" ]; then
         warn ".env file already exists"
-        read -p "Do you want to overwrite it? (y/N): " -n 1 -r
-        echo
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        read -r -p "Do you want to overwrite it? (y/N): " response
+        if [[ ! $response =~ ^[Yy]$ ]]; then
             log "Keeping existing .env file"
             return 0
         fi
@@ -75,7 +74,7 @@ init_env() {
     info "Let's configure the essential settings..."
     
     # Domain configuration
-    read -p "Enter your domain (e.g., media.example.com): " domain
+    read -r -p "Enter your domain (e.g., media.example.com): " domain
     if [ -n "$domain" ]; then
         sed -i.bak "s/DOMAIN=yourdomain.com/DOMAIN=$domain/g" "$ENV_FILE"
         log "Set domain to: $domain"
@@ -83,7 +82,7 @@ init_env() {
     
     # Timezone configuration
     echo "Current timezone: $(cat /etc/timezone 2>/dev/null || date +%Z)"
-    read -p "Enter your timezone (press Enter to use current): " timezone
+    read -r -p "Enter your timezone (press Enter to use current): " timezone
     if [ -n "$timezone" ]; then
         sed -i.bak "s|TZ=America/New_York|TZ=$timezone|g" "$ENV_FILE"
         log "Set timezone to: $timezone"
@@ -95,9 +94,8 @@ init_env() {
     
     if [ "$current_uid" != "1000" ] || [ "$current_gid" != "1000" ]; then
         warn "Your UID/GID is not 1000:1000 (current: $current_uid:$current_gid)"
-        read -p "Update PUID/PGID to match your user? (Y/n): " -n 1 -r
-        echo
-        if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+        read -r -p "Update PUID/PGID to match your user? (Y/n): " response
+        if [[ ! $response =~ ^[Nn]$ ]]; then
             sed -i.bak "s/PUID=1000/PUID=$current_uid/g" "$ENV_FILE"
             sed -i.bak "s/PGID=1000/PGID=$current_gid/g" "$ENV_FILE"
             log "Updated PUID/PGID to: $current_uid:$current_gid"
@@ -105,13 +103,13 @@ init_env() {
     fi
     
     # Cloudflare configuration
-    read -p "Enter your Cloudflare email: " cf_email
+    read -r -p "Enter your Cloudflare email: " cf_email
     if [ -n "$cf_email" ]; then
         sed -i.bak "s/CLOUDFLARE_EMAIL=your-email@example.com/CLOUDFLARE_EMAIL=$cf_email/g" "$ENV_FILE"
         log "Set Cloudflare email to: $cf_email"
     fi
     
-    read -p "Enter your Cloudflare API token: " cf_token
+    read -r -p "Enter your Cloudflare API token: " cf_token
     if [ -n "$cf_token" ]; then
         sed -i.bak "s/CLOUDFLARE_API_TOKEN=your-cloudflare-api-token/CLOUDFLARE_API_TOKEN=$cf_token/g" "$ENV_FILE"
         log "Set Cloudflare API token"
@@ -204,7 +202,7 @@ check_env() {
         current="${!var:-}"
         default="$(get_default "$var")"
         if [ -z "$current" ] || [[ "$current" == "$default" ]] || [[ "$current" == *"your-"* ]] || [[ "$current" == *"yourdomain"* ]]; then
-            read -p "Enter value for $var [${default}]: " input
+            read -r -p "Enter value for $var [${default}]: " input
             value="${input:-$default}"
             set_env_var "$var" "$value"
             export "$var=$value"
@@ -320,7 +318,7 @@ setup_api_keys() {
         echo "  Current: ${current_key:-not set}"
         echo "  Path: $path"
         
-        read -p "  Enter new API key (or press Enter to skip): " new_key
+        read -r -p "  Enter new API key (or press Enter to skip): " new_key
         
         if [ -n "$new_key" ]; then
             sed -i.bak "s/${service}_API_KEY=.*/${service}_API_KEY=$new_key/g" "$ENV_FILE"
@@ -356,13 +354,13 @@ update_paths() {
     echo "  Temp: $TEMP_PATH"
     echo
     
-    read -p "Enter new media path (current: $MEDIA_PATH): " new_media
+    read -r -p "Enter new media path (current: $MEDIA_PATH): " new_media
     if [ -n "$new_media" ]; then
         sed -i.bak "s|MEDIA_PATH=.*|MEDIA_PATH=$new_media|g" "$ENV_FILE"
         log "Updated media path to: $new_media"
     fi
     
-    read -p "Enter new downloads path (current: $DOWNLOADS_PATH): " new_downloads
+    read -r -p "Enter new downloads path (current: $DOWNLOADS_PATH): " new_downloads
     if [ -n "$new_downloads" ]; then
         sed -i.bak "s|DOWNLOADS_PATH=.*|DOWNLOADS_PATH=$new_downloads|g" "$ENV_FILE"
         log "Updated downloads path to: $new_downloads"
@@ -390,7 +388,7 @@ enable_gpu() {
     echo "4. Disable GPU acceleration"
     echo
     
-    read -p "Select GPU type (1-4): " gpu_choice
+    read -r -p "Select GPU type (1-4): " gpu_choice
     
     case $gpu_choice in
         1)
