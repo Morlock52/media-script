@@ -60,7 +60,7 @@ docker compose logs -f [service] # Follow service logs
 - GPU acceleration auto-detection (NVIDIA, Intel, AMD)
 - Hardware-specific Docker Compose generation
 - Optional Cloudflare SSL integration for secure remote access
-- Local-only mode available (set `LOCAL_ONLY=true`)
+- Local-only mode available (set `ACCESS_MODE=local`)
 
 ### Key Files
 - `docker-compose.yml`: Main service definitions (generated)

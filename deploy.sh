@@ -69,12 +69,21 @@ check_environment() {
     set -a
     source "$PROJECT_ROOT/.env"
     set +a
-    
-    # Check for basic configuration (skip Cloudflare check if LOCAL_ONLY=true)
-    if [[ "$LOCAL_ONLY" != "true" ]]; then
+
+    # Normalize access mode while preserving backward compatibility
+    ACCESS_MODE=${ACCESS_MODE:-remote}
+    LOCAL_MODE=${LOCAL_MODE:-false}
+    if [[ "$LOCAL_MODE" != "true" ]]; then
+        if [[ "${LOCAL_ONLY:-}" == "true" || "$ACCESS_MODE" == "local" ]]; then
+            LOCAL_MODE=true
+        fi
+    fi
+
+    # Check for basic configuration (skip Cloudflare check in local mode)
+    if [[ "$LOCAL_MODE" != "true" ]]; then
         if [[ "$DOMAIN" == *"yourdomain"* ]] || [[ "$CLOUDFLARE_API_TOKEN" == *"your-"* ]]; then
             error "Environment not properly configured for remote access"
-            info "Run: ./scripts/env-manager.sh init or set LOCAL_ONLY=true for local access"
+            info "Run: ./scripts/env-manager.sh init or set ACCESS_MODE=local for local access"
             exit 1
         fi
     fi
@@ -186,7 +195,7 @@ generate_compose_file() {
     cp "$source_file" "$output_file.tmp"
     
     # Handle local-only mode (use local template instead)
-    if [[ "$LOCAL_ONLY" == "true" ]]; then
+    if [[ "$LOCAL_MODE" == "true" ]]; then
         log "Configuring for local-only access (no SSL)"
         # Use local-only template
         source_file="$PROJECT_ROOT/docker-compose.local.yml"
@@ -401,14 +410,13 @@ main() {
             ./scripts/env-manager.sh init
             ;;
         "deploy")
-            check_environment
-            
             # Parse additional arguments
             shift || true
             while [[ $# -gt 0 ]]; do
                 case $1 in
                     --local)
-                        export LOCAL_ONLY=true
+                        LOCAL_MODE=true
+                        ACCESS_MODE=local
                         log "Enabling local-only mode"
                         ;;
                     --with-auto-update)
@@ -428,6 +436,8 @@ main() {
                 esac
                 shift
             done
+
+            check_environment
             
             # Detect GPU capabilities
             local detected_gpu="${gpu_override:-$(detect_gpu)}"
