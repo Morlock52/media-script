@@ -48,11 +48,20 @@ echo ""
 echo "✅ Media Stack started successfully!"
 echo ""
 # Show appropriate URLs based on deployment mode
-DOMAIN=$(grep DOMAIN= .env | cut -d= -f2)
-LOCAL_ONLY=$(grep LOCAL_ONLY= .env | cut -d= -f2 2>/dev/null)
+DOMAIN=$(grep -E '^DOMAIN=' .env | head -n1 | cut -d= -f2- || true)
+ACCESS_MODE=$(grep -E '^ACCESS_MODE=' .env | head -n1 | cut -d= -f2- || true)
+
+if [[ -z "$DOMAIN" ]]; then
+    DOMAIN="localhost"
+fi
+
+LOCAL_MODE=false
+if [[ "$ACCESS_MODE" == "local" || "$DOMAIN" == "localhost" ]]; then
+    LOCAL_MODE=true
+fi
 
 echo "🌐 Access your services at:"
-if [[ "$LOCAL_ONLY" == "true" || "$DOMAIN" == "localhost" ]]; then
+if [[ "$LOCAL_MODE" == "true" ]]; then
     echo "   Jellyfin:     http://localhost:8096"
     echo "   Dashboard:    http://localhost:7575"
     echo "   Overseerr:    http://localhost:5055"
